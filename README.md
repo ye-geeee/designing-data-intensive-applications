@@ -6,7 +6,7 @@
 
 |What|Date|Progress|
 |-----|----|---|
-|[1. Reliable, Scalable, and Maintainable Applications](./Part1_Foundations_of_Data_Systems/01_Reliable_Scalable_and_Maintainable_Applications.md)|21.10.10|:x:|
+|[1. Reliable, Scalable, and Maintainable Applications](./Part1_Foundations_of_Data_Systems/01_Reliable_Scalable_and_Maintainable_Applications.md)|21.10.11|:white_check_mark:|
 |2. Data Models and Query Languages| |:x:|
 |3. Storage and Retrieval| |:x:|
 |4. Encoding and Evolution| |:x:|
