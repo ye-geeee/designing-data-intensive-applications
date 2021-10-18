@@ -302,6 +302,11 @@ In a graph query, you may need to traverse a variable number of edges before you
 
 ## Triple Stores and SPARQL
 
+The triple-store model is mostly equivalent to the property graph model.  
+All information is stored in form of very simple three-part statements(_subject, predicate, object_).  
+
+Semantic Web -> RDF data model -> SPARQL
+
 ## The Foundation: Datalog
 
-
+... 
