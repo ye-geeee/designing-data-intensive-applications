@@ -282,7 +282,18 @@ each edge consists of:
 Those feature give graphs a great deal of flexibility for data modeling.  
 Graphs are good for evolvability: graph can easily be extended when you add features  
 
+<br/>
+
 ## The Cypher Query Language
+
+_Cypher_ is a declarative query language for property graphs, created for the Neo4j graph database.  
+
+```SQL
+MATCH
+    (person) -[:BORN_IN]->  () -[:WITHIN*0..]-> (us:Location {name:'United States'}),
+    (person) -[:LIVES_IN]-> () -[:WITHIN*0..]-> (eu:Location {name:'Europe'}) 
+RETURN person.name
+```
 
 ## Graph Queries in SQL
 
