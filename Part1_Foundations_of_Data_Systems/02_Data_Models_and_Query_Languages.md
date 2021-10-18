@@ -121,6 +121,65 @@ Thus relational model make it much easier to add new features to applications.
 
 ## Relational Versus Document Databases Today
 
+There are some differences to consider relational databases vs document databases : `fault-tolerance properties`, `handling of concurrency`
+
+|Model|Advantage|
+|---|---|
+|Document data model|schema flexibility, better performance due to locality|
+|Relational model|supports for joins, many-to-one and mony-to-many relationships|
+
+### Which data model leads to simpler application code?
+
+The relational technique of _shredding(splitting a document-like structure into multiple tables)_ can lead to cumbersome schemas and complicated application code.  
+However, there are some limitations of document model: 
+
+- cannot refer directly to a nested item within a document
+- poor support for joins  
+
+You can reduce the need for joins by _denormalizing_, but the application code needs to do additional work to keep the denormalized data consistent.  
+ 
+Generally, which data model leads to simpler application code:  
+it depends on the kinds of relationships that exist between data items.  
+
+### Schema flexibility int the document model
+
+No schema means that arbitrary keys and values can be added to a document, 
+and when reading, clients have no guarantees as to what fields the documents may contain.  
+Document databases are not _schemaless_, there is an implicit schema, and it's not enforced by the database.  
+
+- `schema-on-read`: structure of data is implicit, similar to dynamic(runtime) type checking
+- `schema-on-write`: traditional approach of relational databases, similar to static (compile-time) type checking  
+
+The difference between the approaches is noticeable when an application wants to change the format of its data.  
+Schema changes have a bad reputation of being slow and requiring downtime.  
+In case of MySQL `ALTER TABLE` query, it copies the entire table that costs minutes or even hours of downtime.  
+Therefore, the `schema-on-read` approach is advantageous if the items in the collection don't all have the same structure for some reason.  
+
+### Data locality for queries
+
+A document is usually stored as a single continuous string(encoded as JSON, XML etc).   
+If your application often needs to access the entire document, 
+there is a performance advantage to this _storage locality_.  
+
+The locality advantage only applies if you need large parts of the document at the same time.  
+It is generally recommended to keep documents fairly small and avoid writes.  
+These performance limitations significantly reduce the set of situations in which document databases are useful.  
+
+The idea of grouping related data together for locality is not limited to document model.  
+
+- Google's Spanner database - offers locality properties in relational data model
+- Oracle - offers same functions using a feature called `multi-table index cluster tables`
+- Cassandra and HBase - `column-family` concept
+
+### Convergence of document and relational databases
+
+Given the popularity of JSON for web APIs, other relational databases follow in their footsteps and add JSON support.  
+
+- RethinkDB - supports relational-like joins in its query language
+- MongoDB - automatically resolve database references
+
+A hybrid of the relational and document models is a good route for databases to take in the future.  
+
 ## Query Languages for Data
 
 ## Declarative Queries on the Web
