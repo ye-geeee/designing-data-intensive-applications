@@ -200,6 +200,13 @@ A declarative query language
 
 ## Declarative Queries on the Web
 
+The advantages of declarative query are not limited to just databases.  
+
+- CSS, XSL - _declarative_ languages for specifying the styling of a document
+- JavaScript - imperative approach using the core Document Object Model(DOM) API
+
+In a web browser, using declarative CSS styling is much better than manipulating styles imperatively in JavaScript.
+
 ## MapReduce Querying
 
 ## Graph Like Data Models 
