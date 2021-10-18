@@ -1,28 +1,18 @@
 # Chapter 2. Data Models and Query Languages
 
 1. [Relational Model Versus Document Model](#Relational-Model-Versus-Document-Model)
-2. [The Birth of NoSQL](#The-Birth-of-NoSQL) 
-
-
+2. [The Birth of NoSQL](#The-Birth-of-NoSQL)
 3. [The Object-Relational Mismatch](#The-Object-Relational-Mismatch)
 4. [Many-to-One and Many-to-Many Relationships](#Many-to-One-and-Many-to-Many-Relationships)
-
-   
 5. [Are Document Databases Repeating History?](#Are-Document-Databases-Repeating-History?)
 6. [Relational Versus Document Databases Today](#Relational-Versus-Document-Databases-Today)
-
-
 7. [Query Languages for Data](#Query-Languages-for-Data)
 8. [Declarative Queries on the Web](#Declarative-Queries-on-the-Web)
 9. [MapReduce Querying](#MapReduce-Querying)
-   
-
 10. [Graph-Like Data Models](#Graph-Like-Data-Models)
 11. [Property Graphs](#Property-Graphs)
 12. [The Cypher Query Language](#The-Cypher-Query-Language)
 13. [Graph Queries in SQL](#Graph-Queries-in-SQL)
-
-
 14. [Triple Stores and SPARQL](#Triple-Stores-and-SPARQL)
 15. [The Foundation: Datalog](#The-Foundation:-Datalog)
 
@@ -73,6 +63,8 @@ Therefore, in resume application
 The JSON representation has better _locality_ thant the multi-table schema.  
 In the JSON representation, all the relevant information is in one place, and one query is sufficient.  
 
+<br/>
+
 ## Many to One and Many to Many Relationships
 
 There are some advantages to having standardized lists:  
@@ -118,6 +110,8 @@ There are no labyrinthine nested structures, no complicated access paths to foll
 
 In a relational database, the query optimizer automatically decides which parts of the query to execute in which order, and which indexes to use.  
 Thus relational model make it much easier to add new features to applications.  
+
+<br/>
 
 ## Relational Versus Document Databases Today
 
@@ -198,6 +192,8 @@ A declarative query language
 - limited functionality gives the database much more room for automatic optimizations
 - can lend themselves to parallel execution
 
+<br/>
+
 ## Declarative Queries on the Web
 
 The advantages of declarative query are not limited to just databases.  
@@ -206,6 +202,8 @@ The advantages of declarative query are not limited to just databases.
 - JavaScript - imperative approach using the core Document Object Model(DOM) API
 
 In a web browser, using declarative CSS styling is much better than manipulating styles imperatively in JavaScript.
+
+<br/>
 
 ## MapReduce Querying
 
@@ -246,6 +244,17 @@ _Pain Point?_
 <br/>
 
 ## Graph Like Data Models 
+
+one-to-many relationships(tree-structured data) or no relationships between records -> use _document model_  
+many-to-many relationships and complex connections within your data -> use _graph-like data model!_
+
+_Graph-Like Data Model?_
+
+- _vertices_ + _edges_
+- not limited to _homogeneous_ data
+- provide a consistent way of storing completely different types of objects in a single datastore
+
+<br/>
 
 ## Property Graphs
 
