@@ -207,7 +207,7 @@ In a web browser, using declarative CSS styling is much better than manipulating
 
 ## MapReduce Querying
 
-_MapReduce?_ 
+**_MapReduce?_**
 
 - a programming model for processing large amounts of data in bulk across many machines.  
 - supported by some NoSQL datastores(MongoDB and CouchDB).  
@@ -234,21 +234,21 @@ They must be _pure_ functions : they only use the data passed to them as input,
 they cannot perform additional database queries, and must not have any side effects.  
 However, they are nevertheless powerful.  
 
-_Pain Point?_
+**_Pain Point?_**
 
 - two carefully coordinated Javascript functions: harder than writing a single query
 - declarative query language offers more opportunities for a query optimizer to improve the performance of a query  
 
--> MongoDB 2.2 support declarative query language called _aggregation pipeline_.  
+MongoDB 2.2 support declarative query language called _aggregation pipeline_.  
 
 <br/>
 
 ## Graph Like Data Models 
 
-one-to-many relationships(tree-structured data) or no relationships between records -> use _document model_  
-many-to-many relationships and complex connections within your data -> use _graph-like data model!_
+one-to-many relationships(tree-structured data) or no relationships between records -> use `document model`  
+many-to-many relationships and complex connections within your data -> use `graph-like data model`!
 
-_Graph-Like Data Model?_
+**_Graph-Like Data Model?_**
 
 - _vertices_ + _edges_
 - not limited to _homogeneous_ data
@@ -257,6 +257,30 @@ _Graph-Like Data Model?_
 <br/>
 
 ## Property Graphs
+
+each vertex consists of:
+
+- a unique identifier
+- a set of outgoing edges
+- a set of incoming edges
+- A collection os properties(key-value pairs)
+
+each edge consists of:
+
+- a unique identifier
+- the tail vertex
+- the head vertex
+- a label to describe the king of relationship between the two vertices
+- a collection of properties(key-value pairs)
+
+**_Some important aspects?_**
+
+- any vertex can have an edge
+- _traverse_ the graph
+- use different labels for different kinds of relationships  
+
+Those feature give graphs a great deal of flexibility for data modeling.  
+Graphs are good for evolvability: graph can easily be extended when you add features  
 
 ## The Cypher Query Language
 
