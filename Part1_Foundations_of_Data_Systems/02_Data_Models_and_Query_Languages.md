@@ -180,7 +180,23 @@ Given the popularity of JSON for web APIs, other relational databases follow in 
 
 A hybrid of the relational and document models is a good route for databases to take in the future.  
 
+<br/>
+
 ## Query Languages for Data
+
+SQL is a `declarative` query language, whereas IMS & CODASYL uses `imperative` code.  
+
+- imperative language tells the computer to perform certain operations in a certain order
+- declarative query language - you must specify the pattern of the data you want, not _how_ to achieve that goal
+
+A declarative query language
+
+- typically more concise and easier to work with that an imperative API
+- hides implementation details of the database engine
+- database system can introduce performance improvements without changes in query
+- does not guarantee any particular ordering
+- limited functionality gives the database much more room for automatic optimizations
+- can lend themselves to parallel execution
 
 ## Declarative Queries on the Web
 
