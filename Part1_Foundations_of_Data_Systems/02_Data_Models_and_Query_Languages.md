@@ -297,6 +297,9 @@ RETURN person.name
 
 ## Graph Queries in SQL
 
+In relational database, you usually know in advance which joins you need in your query.  
+In a graph query, you may need to traverse a variable number of edges before you find the vertex you're looking for.  
+
 ## Triple Stores and SPARQL
 
 ## The Foundation: Datalog
