@@ -209,6 +209,42 @@ In a web browser, using declarative CSS styling is much better than manipulating
 
 ## MapReduce Querying
 
+_MapReduce?_ 
+
+- a programming model for processing large amounts of data in bulk across many machines.  
+- supported by some NoSQL datastores(MongoDB and CouchDB).  
+- neither a declarative query language nor a fully imperative query API.  
+
+```MapReduce
+db.observations.mapReduce( 
+    function map() {
+        var year = this.observationTimestamp.getFullYear();
+        var month = this.observationTimestamp.getMonth() + 1; 
+        emit(year + "-" + month, this.numAnimals);
+    },
+    function reduce(key, values) {
+        return Array.sum(values); 
+    },
+    {
+        query: { family: "Sharks" },
+        out: "monthlySharkReport"
+    }
+);
+```
+
+They must be _pure_ functions : they only use the data passed to them as input, 
+they cannot perform additional database queries, and must not have any side effects.  
+However, they are nevertheless powerful.  
+
+_Pain Point?_
+
+- two carefully coordinated Javascript functions: harder than writing a single query
+- declarative query language offers more opportunities for a query optimizer to improve the performance of a query  
+
+-> MongoDB 2.2 support declarative query language called _aggregation pipeline_.  
+
+<br/>
+
 ## Graph Like Data Models 
 
 ## Property Graphs
