@@ -1,7 +1,7 @@
 # Chapter 3. Storage and Retrieval
 
 1. [Data Structures That Power Your Database](#Data-Structures-That-Power-Your-Database)
-2. [Hash Indexes]
+2. [Hash Indexes](#Hash-Indexes)
 3. [SSTables and LSM-Trees]
 4. [B-Trees]
 5. [Comparing B-Trees and LSM-Trees]
@@ -42,3 +42,48 @@ For this reason, databases don't usually index everything by default, you can ch
 without introducing more overhead than necessary.  
 
 <br/>
+
+## Hash Indexes
+
+Let's start with indexes for key-value data which is similar to the _dictionary_ type.  
+The simplest possible indexing strategy is this: keep an in-memory hash map where every key is mapped to a byte offset in the data file.  
+This may sound simplistic, but it is a viable approach.  
+
+In this case, [Bitcask](https://en.wikipedia.org/wiki/Bitcask) offers high-performance reads and writes.  
+The values can be loaded from disk to memory with just one disk seek.  
+A storage engine like Bitcask is well suited to situations where the value for each key is updated frequently.  
+
+But, how do we avoid eventually running out of disk space?
+A good solution is to break the log into segments of a certain size by closing a segment file.  
+We can perform _compaction_ on these segments like below image.  
+
+![03_compaction](../resources/part1/03_compaction.png)
+
+Compaction makes segments much smaller.  
+We can also merge several segments together at the same time, and it could be done in a background thread.  
+
+Each segment now has its own in-memory hash table, mapping keys to file offsets.  
+In order to find the key, we check from the latest.   
+The merging process keeps the number of segments small, so lookups don't need to check many hash maps.  
+
+**Issues that are important in a real implementation**  
+
+- _File format_: binary format is faster than csv format
+- _Deleting records_: append a special deletion record to the data file
+- _Crash recovery_: in-memory hash maps are lost when restarted. use a snapshot of each segment's hash map on disk  
+- _Partially written records_: include checksums allowing corrupted parts of the log to be detected and ignored
+- _Concurrency control_: Data file segments are append-only and otherwise immutable
+
+**Why append-only design is good**
+
+- Appending and segment merging are sequential write operations - much faster than random writes  
+- Concurrency and crash recovery are much simpler  
+
+**Limitation of Hash Tables**
+
+- must fit in memory
+- range queries are not efficient
+
+
+
+
