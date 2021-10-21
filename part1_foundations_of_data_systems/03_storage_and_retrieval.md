@@ -37,7 +37,7 @@ An index is an _additional structure_.
 Many data-bases allow you to add and remove indexes, and it should not affect the contents of the databases; it only affects performance.  
 Any kind of indexes usually slows down writes, because the index need to be updated everytime when data is written.  
 
-Therefore, well-chosen indexes speed up read queries, but every index slow down writes.  
+Therefore, **well-chosen indexes speed up read queries, but every index slow down writes**.  
 For this reason, databases don't usually index everything by default, you can choose the indexes that give your application the greatest benefit, 
 without introducing more overhead than necessary.  
 
