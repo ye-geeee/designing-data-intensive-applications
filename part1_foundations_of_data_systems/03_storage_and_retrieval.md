@@ -3,7 +3,7 @@
 1. [Data Structures That Power Your Database](#Data-Structures-That-Power-Your-Database)
 2. [Hash Indexes](#Hash-Indexes)
 3. [SSTables and LSM-Trees](#SSTables-and-LSM-Trees)
-4. [B-Trees]
+4. [B-Trees](#B-Trees)
 5. [Comparing B-Trees and LSM-Trees]
 6. [Other Indexing Structures]
 7. [Transaction Processing or Analytics?]
@@ -138,4 +138,36 @@ Since data is stored in sorted order, you can efficiently perform range queries.
 
 <br/>
 
+## B Trees
+
+_B-tree_ is the most widely used indexing structure.  
+B-trees keep key-value pairs sorted by key, which allows efficient key-value lookups and range queries.  
+However, the B-trees have  a very different design philosophy.  
+
+B-trees break the database down into fixed-size _blocks_ or _pages_(log-structured indexes - variable-size _segments_).  
+When you want to look up a key in the index, you start from the root.  
+Each page contains several keys and references to child pages.  
+_branching factor_ : the number of references to child pages in one page of the B-tree
+
+![04_Bt-ree](../resources/part1/04_B-tree.png)
+
+This algorithm ensures that the tree remains _balanced_.  
+Most databases can fit into a B-tree that is three or four levels deep.  
+
+### Making B-trees reliable
+
+All references to that page remain intact when the page is overwritten.  
+This is contrast to log-structured indexes such as LSM-trees, which only append to files but never modify files in place.  
+
+In order to make the database resilient to crashes
+- use additional data structure on disk: _a write-ahead log_
+- careful concurrency control if multiple threads are going to access the B-tree at the same time - protect tree structures with _latches_(lightweight locks)  
+
+### B-tree optimizations
+
+- Instead of overwriting and maintaining, just write modified page to a different location. It is useful for concurrency control  
+- Do not store the entire key, but abbreviate it.  
+- Pages can be positioned anywhere on disk - nothing requiring pages with nearby key ranges to be nearby on disk  
+- Additional pointers have beed added to the tree. ex. sibiling pages
+- B-tree variants such as _fractal trees_ borrow some log-structured ideas to reduce disk seeks
 
