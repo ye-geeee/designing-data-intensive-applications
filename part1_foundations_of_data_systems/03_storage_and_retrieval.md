@@ -2,7 +2,7 @@
 
 1. [Data Structures That Power Your Database](#Data-Structures-That-Power-Your-Database)
 2. [Hash Indexes](#Hash-Indexes)
-3. [SSTables and LSM-Trees]
+3. [SSTables and LSM-Trees](#SSTables-and-LSM-Trees)
 4. [B-Trees]
 5. [Comparing B-Trees and LSM-Trees]
 6. [Other Indexing Structures]
@@ -84,6 +84,58 @@ The merging process keeps the number of segments small, so lookups don't need to
 - must fit in memory
 - range queries are not efficient
 
+<br/>
 
+## SSTables and LSM Trees
+
+Let's change out segment files: _sort by key_  
+We call this format _Sorted String Table_, or _SSTable.  
+We also require that each key only appears once within each merged segment file.  
+
+**Advantages of SSTables**
+
+1. Merging segments is simple and efficient - similar to _mergesort_
+2. No longer need to keep an index of all the keys in memory to find particular word - it can be sparse  
+3. Can group records into a block and compress it before writing it to disk  
+
+### Constructing and maintaining SSTables
+
+With tree data structures like red-black trees and AVL trees, you can insert keys in any order and read them back in sorted order.  
+
+- Write data to an in-memory balanced tree data structure. This in-memory tree is sometimes called a _memtable_. 
+- When the memtable gets bigger than some threshold - write it out to disk as and SSTable file.  
+- To serve read request, first try to find the key in the memtable, most recent to the oldest one.  
+- From time to time, run a merging and compaction process in the background.  
+
+One problem from this scheme: if the databases crashes, the most recent writes are lost.  
+In order to avoid that problem, we can keep a separate log on disk to which every write is immediately appended.  
+
+### Making an LSM tree out of SSTables
+
+Following algorithm is used in LevelDB and RocksDB, key-value storage engine libraries that are designed to be embedded into other applications.  
+Originally this indexing structure was described under the name _Log-Structured Merge-Tree_(or LSM-Tree), building on earlier work on log-structured filesystems.  
+Storage engines that are based on this principle of merging and compacting often called LSM storage engines.  
+
+Lucene, an indexing engine for full-text used by Elasticsearch and Solr, uses a similar method for storing its _term dictionary_.  
+This is implemented with a key-value structure where the key is a word (_a term_) and the value is the list of IDs of all the documents that contain the word (_the postings list).  
+
+### Performance optimizations
+
+In order to optimize this kind of access, storage engines often use additional _Bloom filters_.  
+It's a memory-efficient data structure for approximating the contents of a set, it can tell you if a key does not appear in the database.  
+
+The most common options to determine the order and timing of how SSTables are compacted and merged are _size-tiered_ and _leveled_ compaction.
+- LevelDB, RocksDB use leveled compaction
+- HBase uses size-tiered
+- Cassandra support both
+
+In level compaction, the key range is split up into smaller SSTables and older data is moved into separate "levels", 
+which allows the compaction to proceed more incrementally and use less disk space.  
+
+The basic idea of LSM-trees(keeping a cascade of SSTables that are merged in the background) is simple and effective.  
+It works well when the dataset is much bigger than the available memory.  
+Since data is stored in sorted order, you can efficiently perform range queries.
+
+<br/>
 
 
