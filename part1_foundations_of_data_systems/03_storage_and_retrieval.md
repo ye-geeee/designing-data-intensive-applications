@@ -10,8 +10,8 @@
 8. [Data Warehousing](#Data-Warehousing)
 9. [Stars and Snowflakes: Schemas for Analytics](#Stars-and-Snowflakes:-Schemas-for-Analytics)
 10. [Column-Oriented Storage](#Column-Oriented-Storage)
-11. [Column Compression]
-12. [Set Order in Column Storage]
+11. [Column Compression](#Column-Compression)
+12. [Sort Order in Column Storage](#Sort-Order-in-Column-Storage)
 13. [Writing to Column-Oriented Storage]
 14. [Aggregation: Data Cubes and Materialized Views]
 
@@ -344,7 +344,18 @@ Besides reducing the volume of data, column-oriented storage are also good for m
 
 This techniques is known as _vector processing_.  
 
+<br/>
+
 ## Sort Order in Column Storage
+
+It's easiest to store data in the order in which they were inserted.  
+However, we can choose to impose an order(like SSTables) and use that as an indexing mechanism.  
+
+The data needs to be sorted an entire row at a time, even though it is sorted by column.    
+A second column can determine the sort order of any rows that have the same value in the first column.  
+
+Another advantage of sorted order is that it can help compression of columns.  
+- long sequences of repeated data, simple run-length encoding(like bitmaps)
 
 ## Writing to Column-Oriented Storage
 
