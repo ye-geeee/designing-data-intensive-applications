@@ -7,7 +7,7 @@
 5. [Comparing B-Trees and LSM-Trees](#Comparing-B-Trees-and-LSM-Trees)
 6. [Other Indexing Structures](#Other-Indexing-Structures)
 7. [Transaction Processing or Analytics?](#Transaction-Processing-or-Analytics?)
-8. [Data Warehousing]
+8. [Data Warehousing](#Data-Warehousing)
 9. [Stars and Snowflakes: Schemas for Analytics]
 10. [Column-Oriented Storage]
 11. [Column Compression]
@@ -278,3 +278,28 @@ Databases started being used for _data analytics_ known as _online analytic proc
 In the late 1980s and early 1990s, there was a trend for companies to stop using OLTP systems for analytics perposes,
 run the analytics on a separate database instead - _data warehouse_.  
 
+<br/>
+
+## Data Warehousing
+
+Ad hoc analytic queries on an OLTP databases are ofter expensive, scanning large parts of dataset, 
+which can harm the performance of concurrently executing transactions.
+
+A _data warehouse_ is a separate database that analysts can query without affecting OLTP operations.  
+The data warehouse contains a read-only copy of the data in all the various OLTP systems in the company.  
+
+Data is extracted from OLTP databases and transformed into an analysis-friendly schema, cleaned up, and then loaded into the data warehouse.  
+- known as _Extracted-Transform-Load (ETL)_
+
+A big advantage of using a separate data warehouse is that it can be optimized for analytic access patterns.  
+It turns out that indexing algorithm(LSM-trees, B-trees) are not good at analytic queries.  
+
+### The divergence between OLTP databases and data warehouses
+
+On the surface, a data warehouse, and a relational OLTP database look similar.  
+However, the internals of the systems can look quite different, because they are optimized for very different query patterns.  
+
+Data warehouse example
+Microsoft SQL Server, SAP HANA, Teredata, Vertica, ParAccel, Apache Hive, Spark SQL, Cloudera, Impala, Facebook Presto, Apache Tajo, and Apache Drill
+
+<br/>
