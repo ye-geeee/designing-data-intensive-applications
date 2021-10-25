@@ -168,13 +168,44 @@ In order to make the database resilient to crashes
 - Instead of overwriting and maintaining, just write modified page to a different location. It is useful for concurrency control  
 - Do not store the entire key, but abbreviate it.  
 - Pages can be positioned anywhere on disk - nothing requiring pages with nearby key ranges to be nearby on disk  
-- Additional pointers have beed added to the tree. ex. sibiling pages
+- Additional pointers have been added to the tree. ex. sibling pages
 - B-tree variants such as _fractal trees_ borrow some log-structured ideas to reduce disk seeks
 
 ## Comparing B Trees and LSM Trees
 
-### Advantages of LSM-trees
+**_write amplification_**: one write to the database resulting in multiple writes to the disk  
+write amplification has a direct performance cost
 
-### Downsides of LSM-trees
+### LSM-Trees
 
+- faster for writes
+- log-structured base
 
+**Advantages**
+
+- higher write throughput than B-trees 
+- sometimes have lower write amplification
+- sequentially write compact SSTable rather than having to overwrite several pages - particularly important on magnetic hard drives
+- smaller files on disk than B-trees
+- lower storage overheads especially when using leveled compaction
+
+**Downsides**
+
+- the compaction process can sometimes interfere with the performance of read and writes
+- response time of queries can sometimes be quite high
+- multiple copies of the same key in difference segments
+
+### B-Trees
+
+- faster for reads
+
+**Advantages**
+
+- response time for queries can be more predictable
+- each key exists in exactly one place in the index
+
+**Downsides**
+
+- must write every data at least twice: write-ahead log, page itself
+- having to write an entire page at a time even though small changes
+- unused disk space for fragmentation
