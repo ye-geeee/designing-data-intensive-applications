@@ -9,7 +9,7 @@
 7. [Transaction Processing or Analytics?](#Transaction-Processing-or-Analytics?)
 8. [Data Warehousing](#Data-Warehousing)
 9. [Stars and Snowflakes: Schemas for Analytics](#Stars-and-Snowflakes:-Schemas-for-Analytics)
-10. [Column-Oriented Storage]
+10. [Column-Oriented Storage](#Column-Oriented-Storage)
 11. [Column Compression]
 12. [Set Order in Column Storage]
 13. [Writing to Column-Oriented Storage]
@@ -317,7 +317,13 @@ but star schemas are often preferred because they are simpler for analysts to wo
 
 <br/>
 
-## Column-Oriented Storage
+## Column Oriented Storage
+
+In most OLTP databases, storage is laid out in a _row-oriented_ fashion.  
+When you want to process a query, row-oriented storage engine still needs to load all of those rows from disk into memory, parse data, etc.
+With _column-oriented_ storage, don't store all the values from on row together.
+
+<br/>
 
 ## Column Compression
 
