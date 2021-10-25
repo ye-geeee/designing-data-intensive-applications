@@ -8,7 +8,7 @@
 6. [Other Indexing Structures](#Other-Indexing-Structures)
 7. [Transaction Processing or Analytics?](#Transaction-Processing-or-Analytics?)
 8. [Data Warehousing](#Data-Warehousing)
-9. [Stars and Snowflakes: Schemas for Analytics]
+9. [Stars and Snowflakes: Schemas for Analytics](#Stars-and-Snowflakes:-Schemas-for-Analytics)
 10. [Column-Oriented Storage]
 11. [Column Compression]
 12. [Set Order in Column Storage]
@@ -288,8 +288,7 @@ which can harm the performance of concurrently executing transactions.
 A _data warehouse_ is a separate database that analysts can query without affecting OLTP operations.  
 The data warehouse contains a read-only copy of the data in all the various OLTP systems in the company.  
 
-Data is extracted from OLTP databases and transformed into an analysis-friendly schema, cleaned up, and then loaded into the data warehouse.  
-- known as _Extracted-Transform-Load (ETL)_
+Data is extracted from OLTP databases and transformed into an analysis-friendly schema, cleaned up, and then loaded into the data warehouse - known as _Extracted-Transform-Load (ETL)_
 
 A big advantage of using a separate data warehouse is that it can be optimized for analytic access patterns.  
 It turns out that indexing algorithm(LSM-trees, B-trees) are not good at analytic queries.  
@@ -303,3 +302,27 @@ Data warehouse example
 Microsoft SQL Server, SAP HANA, Teredata, Vertica, ParAccel, Apache Hive, Spark SQL, Cloudera, Impala, Facebook Presto, Apache Tajo, and Apache Drill
 
 <br/>
+
+## Stars and Snowflakes: Schemas for Analytics
+
+In analytics, there is much less diversity of data models.  
+Many data warehouse are used the style knows as a _style schema(dimensional modeling)_.    
+
+- _Dimension tables_: some columns are attribute and others are foreign key references to other tables.
+- _Star schema_: the table relationships are visualized, the fact table is in the middle, surrounded by its dimension tables
+- _Snowflake schema_: dimensions are further broken down into subdimensions 
+
+Snowflake schemas are more normalized than star schemas, 
+but star schemas are often preferred because they are simpler for analysts to work with.  
+
+<br/>
+
+## Column-Oriented Storage
+
+## Column Compression
+
+## Sort Order in Column Storage
+
+## Writing to Column-Oriented Storage
+
+## Aggregation: Data Cubes and Materialized Views
