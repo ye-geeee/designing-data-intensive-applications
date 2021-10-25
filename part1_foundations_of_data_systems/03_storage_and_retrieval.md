@@ -327,6 +327,23 @@ With _column-oriented_ storage, don't store all the values from on row together.
 
 ## Column Compression
 
+We can reduce the demands on disk throughput by compressing data.  
+One technique tha is particularly effective in data warehouses is _bitmap encoding_.  
+
+The number of distinct values in a column is small compared to the number of rows.  
+If _n_ is very small, those bitmaps can be stored with one bit per row.
+
+### Memory bandwidth and vectorized processing
+
+Developers of analytical databases worry about efficiently using the bandwidth from main memory into the CPU cache, 
+avoiding the branch mispredictions and bubbles in the CPU instruction processing pipeline, 
+and making use of single-instruction-multi-data(SIMD) instructions in modern CPUs.  
+
+Besides reducing the volume of data, column-oriented storage are also good for making efficient use of CPU cycles.  
+- compressed column data that fits CPU's L1 cache and iterate in a tight loop
+
+This techniques is known as _vector processing_.  
+
 ## Sort Order in Column Storage
 
 ## Writing to Column-Oriented Storage
