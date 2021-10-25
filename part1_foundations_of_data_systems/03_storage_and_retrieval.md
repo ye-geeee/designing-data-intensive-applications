@@ -13,7 +13,7 @@
 11. [Column Compression](#Column-Compression)
 12. [Sort Order in Column Storage](#Sort-Order-in-Column-Storage)
 13. [Writing to Column-Oriented Storage](#Writing-to-Column-Oriented-Storage)
-14. [Aggregation: Data Cubes and Materialized Views]
+14. [Aggregation: Data Cubes and Materialized Views](#Aggregation:-Data-Cubes-and-Materialized-Views)
 
 <br/>
 
@@ -367,3 +367,24 @@ All write first go to an in-memory store, when enough writes have accumulated,
 they were merged with the column files on disk and written to new files in bulk.
 
 ## Aggregation: Data Cubes and Materialized Views
+
+Columnar storage can be significantly faster for ad hoc analytical queries, so it is rapidly gaining popularity.  
+
+**materialized aggregates**
+
+Data warehouse queries often involve an aggregate function(SUM, COUNT, etc).  
+If the same aggregates are used by many different queries -> let's use cache!
+
+**materialized view**
+
+A table-like object whose contents are the results of some query.  
+Materialized view is an actual copy of the query results, written to disk, whereas a virtual view is just a shortcut for writing queries.  
+
+**data cube or OLAP cube**
+
+A common special case of a materialized view.  
+The advantage of a materialized data cube is that certain queries become very fast because they have effectively been precomputed.  
+The disadvantage is that a data cube doesn't have the same flexibility as querying the raw data.  
+
+
+
