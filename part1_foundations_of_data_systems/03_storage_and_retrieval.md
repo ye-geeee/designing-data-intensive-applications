@@ -12,7 +12,7 @@
 10. [Column-Oriented Storage](#Column-Oriented-Storage)
 11. [Column Compression](#Column-Compression)
 12. [Sort Order in Column Storage](#Sort-Order-in-Column-Storage)
-13. [Writing to Column-Oriented Storage]
+13. [Writing to Column-Oriented Storage](#Writing-to-Column-Oriented-Storage)
 14. [Aggregation: Data Cubes and Materialized Views]
 
 <br/>
@@ -357,6 +357,13 @@ A second column can determine the sort order of any rows that have the same valu
 Another advantage of sorted order is that it can help compression of columns.  
 - long sequences of repeated data, simple run-length encoding(like bitmaps)
 
-## Writing to Column-Oriented Storage
+## Writing to Column Oriented Storage
+
+Column-oriented storage, compression, and sorting all help to make read queries faster.  
+However, they have the downside of making writes more difficult.  
+
+For solution, we can use LSM-trees.  
+All write first go to an in-memory store, when enough writes have accumulated, 
+they were merged with the column files on disk and written to new files in bulk.
 
 ## Aggregation: Data Cubes and Materialized Views
