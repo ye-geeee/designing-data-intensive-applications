@@ -4,7 +4,7 @@
 2. [Hash Indexes](#Hash-Indexes)
 3. [SSTables and LSM-Trees](#SSTables-and-LSM-Trees)
 4. [B-Trees](#B-Trees)
-5. [Comparing B-Trees and LSM-Trees]
+5. [Comparing B-Trees and LSM-Trees](#Comparing-B-Trees-and-LSM-Trees)
 6. [Other Indexing Structures]
 7. [Transaction Processing or Analytics?]
 8. [Data Warehousing]
@@ -89,7 +89,7 @@ The merging process keeps the number of segments small, so lookups don't need to
 ## SSTables and LSM Trees
 
 Let's change out segment files: _sort by key_  
-We call this format _Sorted String Table_, or _SSTable.  
+We call this format _Sorted String Table_, or _SSTable_.  
 We also require that each key only appears once within each merged segment file.  
 
 **Advantages of SSTables**
@@ -149,7 +149,7 @@ When you want to look up a key in the index, you start from the root.
 Each page contains several keys and references to child pages.  
 _branching factor_ : the number of references to child pages in one page of the B-tree
 
-![04_Bt-ree](../resources/part1/04_B-tree.png)
+![04_B-tree](../resources/part1/04_B-tree.png)
 
 This algorithm ensures that the tree remains _balanced_.  
 Most databases can fit into a B-tree that is three or four levels deep.  
@@ -170,4 +170,11 @@ In order to make the database resilient to crashes
 - Pages can be positioned anywhere on disk - nothing requiring pages with nearby key ranges to be nearby on disk  
 - Additional pointers have beed added to the tree. ex. sibiling pages
 - B-tree variants such as _fractal trees_ borrow some log-structured ideas to reduce disk seeks
+
+## Comparing B Trees and LSM Trees
+
+### Advantages of LSM-trees
+
+### Downsides of LSM-trees
+
 
