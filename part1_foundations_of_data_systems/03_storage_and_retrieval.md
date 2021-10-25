@@ -5,7 +5,7 @@
 3. [SSTables and LSM-Trees](#SSTables-and-LSM-Trees)
 4. [B-Trees](#B-Trees)
 5. [Comparing B-Trees and LSM-Trees](#Comparing-B-Trees-and-LSM-Trees)
-6. [Other Indexing Structures]
+6. [Other Indexing Structures](#Other-Indexing-Structures)
 7. [Transaction Processing or Analytics?]
 8. [Data Warehousing]
 9. [Stars and Snowflakes: Schemas for Analytics]
@@ -171,6 +171,8 @@ In order to make the database resilient to crashes
 - Additional pointers have been added to the tree. ex. sibling pages
 - B-tree variants such as _fractal trees_ borrow some log-structured ideas to reduce disk seeks
 
+<br/>
+
 ## Comparing B Trees and LSM Trees
 
 **_write amplification_**: one write to the database resulting in multiple writes to the disk  
@@ -209,3 +211,48 @@ write amplification has a direct performance cost
 - must write every data at least twice: write-ahead log, page itself
 - having to write an entire page at a time even though small changes
 - unused disk space for fragmentation
+
+<br/>
+
+## Other Indexing Structures
+
+- _primary key_ that refer to row/document/vertex
+- _secondary indexes_ : crucial for performing join efficiently, not unique
+
+### Storing values within the index
+
+**heap files**
+
+Use key in an index for reference to the row stored elsewhere.  
+_Heap files_ mean the reference the row stored.  
+This approach avoids duplicating data when multiple secondary indexes are present.  
+
+Therefore, it is very efficient when updating a value without changing the key.  
+However, the new value must be not larger than old value.  
+Otherwise, this approach became complicated because it has to find a new location which has enough space.  
+
+In addition, 
+- _clustered index_ stores the indexed row directly within an index.  
+- _covering index or index with included columns_ stores some of a table's columns within the index
+
+Clustered and covering indexes can speed up reads, but they require additional storage and can add overhead on writes.  
+
+### Multi-column indexes
+
+_concatenated index_ is the most common type of multi-column index
+
+ex. restaurants which latitude is more than 00, longitude lower than 00.  
+
+More commonly, specialized special indexes such R-trees are used.  
+
+### Full-text search and fuzzy indexes
+
+_Fussy_ querying requires different techniques.  
+Full-text search engines commonly allow a search for one word to be expanded to include synonyms of the word.
+(Pass..)
+
+### Keeping everything in memory
+
+(Pass..)
+
+<br/>
