@@ -55,7 +55,7 @@ Thus, we need some kind of translation between the two representations.
 Many programming languages come with build in support for encoding in-memory objects into byt sequences.  
 (Java - java.io.Serializable, Ruby - Marchal etc)
 
-However, even though they are very convenient, they have a number of deep problems.  
+**Problems of Language Specific Formats:**
 
 - The encoding is often tied to a particular programming language, and reading the data in another language is very difficult.
 - security problem: The decoding process needs to be able to instantiate arbitrary classes in order to restore data in the same object types.
@@ -64,7 +64,25 @@ However, even though they are very convenient, they have a number of deep proble
 
 ### JSON, XML, and Binary Variants
 
+JSON, XML, and CSV are textual formats, and thus somewhat human-readable.  
+
+**Problems of Textual Formats:**
+
+- A lot of ambiguity around the encoding of numbers(number and string, integers and floating-point numbers). 
+- JSON, XML have good support for Unicode character strings, and do not support binary strings.  
+  - There is a way to use Base64, but it's somewhat hacky and increases the data size by 33%.  
+- Optional schema support for XML and JSON: powerful but complicated to learn
+- CSV does not have any schema, so application have to define the meaning of each row and column.  
+
+#### Binary encoding
+
+Once you get into the terabytes, the choice of data format can have a big impact.  
+JSON is less verbose than XML, but both still use a lot fo space compared to binary formats.  
+There are profusion of binary encodings, but none of them are widely adopted.
+
 ### Thrift and Protocol Buffers
+
+
 
 ### Avro
 
