@@ -38,7 +38,17 @@ And discuss how these formats are used for data storage and for communication: R
 
 ## Formats for Encoding Data
 
+Programs usually work with data in at least two different representations:  
 
+1. In memory, data kept in objects, structs, lists, arrays, hash tables, trees and so on. 
+   These data  structures are optimized for efficient access and manipulation by the CPU.
+2. When you want to write data to a file or send it over the network, you have to encode it as 
+   some kind of self-contained sequence of bytes(ex. JSON).  
+   
+Thus, we need some kind of translation between the two representations.  
+
+- in-memory to a byte sequence: _encoding(serialization, marshalling)_
+- a byte sequence to in-memory: _decoding(parsing, deserialization, unmarshalling)_
 
 ### Language Specific Formats
 
