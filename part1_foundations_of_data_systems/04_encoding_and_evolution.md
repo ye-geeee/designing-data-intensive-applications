@@ -52,6 +52,16 @@ Thus, we need some kind of translation between the two representations.
 
 ### Language Specific Formats
 
+Many programming languages come with build in support for encoding in-memory objects into byt sequences.  
+(Java - java.io.Serializable, Ruby - Marchal etc)
+
+However, even though they are very convenient, they have a number of deep problems.  
+
+- The encoding is often tied to a particular programming language, and reading the data in another language is very difficult.
+- security problem: The decoding process needs to be able to instantiate arbitrary classes in order to restore data in the same object types.
+- Versioning data is often an afterthought. 
+- Efficiency(CPU) is also often an afterthought. 
+
 ### JSON, XML, and Binary Variants
 
 ### Thrift and Protocol Buffers
