@@ -223,13 +223,42 @@ Although textual data formats such as JSON, XML, and CSV are widespread, binary 
 - Much more compact than the various "binary JSON"
 - The schema is required for decoding - you can ensure that it is up to date
 - Allows you to check forward and backward compatibility of schema changes
-- For statically typed programming languaegs users, the ability to generate code from the schema is useful, since it enables type checking at compile time.
+- For statically typed programming languages users, the ability to generate code from the schema is useful, since it enables type checking at compile time.
 
 <br/>
 
 ## Modes of Dataflow
 
+Who encodes the data, and who decodes it when you want to send some data to another process?
+
+- Via databases
+- Via service calls
+- Via asynchronous message passing
+
 ### Dataflow Through Databases
+
+database - _sending a message to your future self_.  
+
+It's common for several processes to be accessing a database at the same time.  
+Some processes accessing the database will be running newer code, and some will be running older code.  
+Thus, forward compatibility is also often required for databases.  
+
+#### Different values written at difference times
+
+_data outlives code_
+
+Rewriting data into a new schema is certainly possible, 
+but it's an expensive thing to do on a large dataset, so most databases avoid it if possible.  
+
+Most relational databases - support simple schema changes
+Avro from LinkedIn's document database Espresso
+
+Schema evolution thus allows the entire database to appear as if it was encoded with a single schema.  
+
+#### Archival storage
+
+For example, you take a snapshot of your database from time to time.  
+Since you're copying the data anyway, you might as well encode the copy of the data consistently.  
 
 ### Dataflow Through Services: REST and RPC
 
