@@ -245,23 +245,100 @@ Thus, forward compatibility is also often required for databases.
 
 #### Different values written at difference times
 
-_data outlives code_
+When you deploy a new version of you application, you may entirely replace the old version with the new version within a few minutes.  
+Unless you have explicitly rewritten it since then, sometimes this can be summed up as _data outlives code_.  
 
-Rewriting data into a new schema is certainly possible, 
+Rewriting data(_migrating_) into a new schema is certainly possible, 
 but it's an expensive thing to do on a large dataset, so most databases avoid it if possible.  
-
-Most relational databases - support simple schema changes
-Avro from LinkedIn's document database Espresso
-
+Most relational databases allow simple schema changes, and LinkedIn's document database Espresso uses Avro for storage, allowing to use Avro's schema evolution rules.  
 Schema evolution thus allows the entire database to appear as if it was encoded with a single schema.  
 
 #### Archival storage
 
 For example, you take a snapshot of your database from time to time.  
+The data dump will typically be encoded using the latest schema.  
 Since you're copying the data anyway, you might as well encode the copy of the data consistently.  
+
+As the data dump is written in one go and is thereafter immutable, formats like Avro object container files are a good fit.  
 
 ### Dataflow Through Services: REST and RPC
 
+Services are similar to databases: they typically allow clients to submit and query data.  
+Services only expose an application-specific API that only allows inputs and outputs that are predetermined by business logic.  
+
+A key design goal of a service-oriented/microservices architecture is to make the application easier to change
+and maintain by making service independently deployable and evolvable.  
+For example, team should be able to release new versions of the service frequently.  
+
+#### Web services
+
+_web service_: when HTTP is used as the underlying protocol not only used on the web  
+For example, a client application running on a user's device that makes request, 
+one service making requests to another service in the same organization(_middleware_), or 
+one service making request to a service in different organization using public APIs with OAuth for shared access.  
+
+There are two popular approaches to web services: _REST_ and _SOAP_.  
+
+**REST**
+
+- a design philosophy that builds upon the principles of HTTP
+- simple data formats with URLs using HTTP features of cache control, authentication, content type negotiation
+
+**SOAP**
+
+- using an XML-based language called the Web Services Description Language(WSDL)
+- enables code generation so that a client can access a remote service using local classes and method calls 
+- useful in statically typed programming languages, less in dynamically typed ones
+- not designed to be human-readable -> complicated -> became less popular
+
+#### The problems with remote procedure calls(RPCs)
+
+RPC model tries to make a request to a remote network service with in the same process(_location transparency_).
+example of RPCs : Enterprise JavaBeans(EJB), Java's Remote Method Invocation(RMI), 
+Distributed Component Object Model(DCOM) limited to Microsoft platforms, Common Object Request Broker Architecture(CORBA)
+
+**Problems of RPCs**
+
+- A network request is unpredictable
+- You can simply don't know what happened
+- If you retry a failed network request, retrying will cause the action te be performed multiple times, unless you build a mechanism for deduplication (_idempotence_).  
+- A network request is much slower than a function call
+- When you make a network request, references should be encoded into a sequence of bytes
+- RPC framework must translate datatypes from one language into another which can end up ugly
+
+#### Current directions for RPC
+
+Despite all these problems, RPC isn't going away.  
+Thrift and Avro come with RPC support included.  
+
+New generation of RPC is more explicit about the fact that a remote request is different from a local function call.  
+For example, Finagle and Res.lli uses _futures (promises)_ to encapsulate asynchronous actions that may fail.  
+Futures also simplify situations where you need to make requests to multiple services in parallel and combine their results (gRPC - _streams_).  
+
+Custom RPC protocols with a binary encoding format can achieve better performance than something generic like JSON over REST.  
+However, Restful API has significant advantages: it is good for experimentation and debugging and supports from all mainstream languages and platforms.  
+The main focus of RPC framework is on requests between services owned by the same organization(same datacenter).  
+
+#### Data encoding and evolution for RPC
+
+It is reasonable to assume that all the servers will be updated first, and all the clients second.  
+Thus, you only need backward compatibility on requests, and forward compatibility on responses.  
+
+- Thrift, gRPC (Protocol Buffers), Avro RPC - compatibility rules of the respective encoding format
+- SOAP: specified with XML schemas, but there are some subtle pitfalls
+- RESTful APIs: adding optional request parameters, adding new fields to response
+
+RPC is often used for communication across organizational boundaries that makes service compatibility harder.  
+Thus, compatibility needs to be maintained for a long time.  
+
+There is no agreement on how API versioning should work.  
+For RESTful APIs, common approaches are to use a version number in the URL or in the HTTP Accept header.  
+Or store a client's requested API version on the server to allow this version selection to be updated through a separate administrative interface.  
+
 ### Message Passing Dataflow
+
+#### Message brokers
+
+#### Distributed actor frameworks 
 
 
