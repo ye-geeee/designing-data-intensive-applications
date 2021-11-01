@@ -100,7 +100,7 @@ Thrift has two different binary encoding formats, _Binary Protocol_ and _Compact
 ![07_Thrift_CompactProtocol](../resources/part1/07_Thrift_CompactProtocol.png)
 
 - Pack the field type and tag number into a single byte.
-- use variable-length integers
+- Use variable-length integers
 - Do not use full eight bytes for numbers. (1 byte: -64~63, 2bytes: -8192~8191)
 
 **Protocol Buffers**
@@ -154,7 +154,76 @@ It has advantage of supporting nested lists.
 
 ### Avro
 
+![09_Avro](../resources/part1/09_Avro.png)
+
+Avro also uses a schema to specify the structure of the data encoded.  
+It has two schema languages: Avro IDL for human editing, based on JSON that is mores easily machine-readable.  
+
+- No tag numbers in the schema.  
+- Nothing to identify fields or their datatypes.  
+- Simply consists of values concatenated together.  
+- To parse binary data, check schema and use it to tell you the datatype of each field.  
+- Binary data can only be decoded correctly if the data is using the _exact same schema_.  
+
+#### The writer's schema and the reader's schema
+
+- _writer's schema_: when an application wants to encode some data
+- _reader's schema_: when an application wants to decode some data
+
+Key idea of Avro: writer's schema and reader's schema _don't have to be the same_ - they only need to be compatible.  
+
+- no problem with different order from writer's schema and reader's schema
+- only in writer's schema -> ignored
+- only in reader's schema -> filled in with default value declared in the reader's schema
+
+#### Schema evolution rules
+
+With Avro, 
+- forward compatibility: new writer's schema + old reader's schema
+- backward compatibility: new reader's schema + old writer's schema
+
+**Characteristics**
+
+- To maintain, you may only add or remove a field that has a default value. 
+- To allow a field to be null, you have to use a _union type_.  
+- Does not have optional and required markers
+- Changing the datatype of a field is possible, Changing the name of a field is little tricky.  
+
+#### But what is the writer's schema
+
+**Avro Usage**
+
+- _Large file with lots of records_
+- _Database with inidvidually written records_
+- _Sending records over a network connection_
+
+#### Dynamically generated schemas
+
+Advantage of Avro's approach: the schema does not contain any numbers.  
+Avro is friendlier to _dynamically generated_ schemas.  
+
+For Avro,
+- If the database schema changes, you can just generate a new Avro schema from the updated database schema and export data in the new Avro schema. 
+- Simply do the schema conversion every time it runs
+- Fields are identified by name
+
+For Thrift or Protocol Buffers, field tags would likely to be assigned by hand when schema changes - map database column names to field tags.
+
+#### Code generation and dynamically typed languages
+
+Thrift and Protocol Buffers rely on code generation - Java, C++, C# which allows efficient in-memory structures  
+Avro - JavaScript, Ruby, or Pythons which is not much point in generating code, no compile-time type checker to satisfy  
+Moreover, in case of dynamically generated schema, code generation is an unnecessary obstacle to getting to the data.  
+Avro file is _self-describing_ since it includes all the necessary metadata.  
+
 ### The Merits of Schemas
+
+Although textual data formats such as JSON, XML, and CSV are widespread, binary encodings have a number of nice properties:
+
+- Much more compact than the various "binary JSON"
+- The schema is required for decoding - you can ensure that it is up to date
+- Allows you to check forward and backward compatibility of schema changes
+- For statically typed programming languaegs users, the ability to generate code from the schema is useful, since it enables type checking at compile time.
 
 <br/>
 
