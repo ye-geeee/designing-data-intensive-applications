@@ -337,8 +337,47 @@ Or store a client's requested API version on the server to allow this version se
 
 ### Message Passing Dataflow
 
+Let's briefly look at _asynchronous message-passing_ systems.  
+- A client's request is delivered to another process with low latency similar to RPC.
+- Message is not sent via a direct network connection, but goes via intermediary called a _message broker_(_message queue, message-oriented middleware) similar to databases
+
+**Advantages of message broker**
+
+- act as a buffer if recipient is unavailable or overloaded, thus improve system reliability
+- automatically redeliver messages to a process that has crashed, thus prevent messages from being lost
+- avoids the sender needing to know the IP address and port number of the recipient
+- allows one message to be sent to several recipients
+- decouples the sender from the recipient
+
+However, a difference compared to RPC is that message-passing communication is usually one-way.  
+This communication pattern is _asynchronous_: the sender doesn't wait for the message to be delivered, but simply sends it and then forgets about it.  
+
 #### Message brokers
+
+Recently, open source implementations such as RabbitMQ, ActiveMQ, HornetQ, NATS, and Apache Kafka have become more popular 
+than the landscape of message brokers such as TIBCO, IBM WebSphere, and webMethods.  
+
+Message brokers are used as  follows:
+one process sends a message to a named _queue_ or _topic_, 
+and the broker ensures that the message is delivered to one or more _consumers_ of or _subscribers_ to that queue or topic.  
+
+A topic provides only one-way dataflow, but a consumer can use reply queue to response.  
+And message brokers typically don't enforce any particular data model - a message is just a sequence of bytes with some data.  
+Therefore, you can use any encoding format.
 
 #### Distributed actor frameworks 
 
+_actor model_: programming model for concurrency in a single process.  
+Rather than dealing with threads(race conditions, locking, and deadlock), logic is encapsulated in _actors_.  
+It communicates with other actors by sending and receiving asynchronous messages and message delivery is not guaranteed.  
+- actors: client, entity, local state
 
+Location transparency works better in the actor model than in RPC, because the actor model already assumes that messages may be lost, even within a single process.  
+(pros) latency over the network is higher within the same preocess
+(cons) less of a fundamental mismatch between local and remote communication
+
+**Three popular distributed actor framework handle message encoding:**
+
+- _Akka_ uses Java's built-in serialization by default which does not support forward & backward compatibility. You can replace it with something like Protocol Buffers for upgrade.   
+- _Orleans_ uses a custom data encoding format that does not support rolling upgrade - 1. set up a new cluster, 2. move traffic from old cluster -> new one, 3. shut down old one for deploying
+- _Erlang OTP_ hard to make changes to record schemas - possible but needs to be planned carefully
