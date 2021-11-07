@@ -38,6 +38,8 @@ Replication: keeping a copy of the same data on multiple machines that are conne
    - eventual consistency
    - _read-your-writes_ and _monotonic reads_ guarantees
 
+<br/>
+
 ## Leaders and Followers
 
 _replica_: each node that stores a copy of the database  
@@ -77,6 +79,18 @@ One for _synchronous_ and others for _asynchronous_.
 - _chain replication_ to provide good performance and availability implemented in Microsoft Azure Storage
 
 ### Setting Up New Followers
+
+Sometimes, we need to set up new followers - increase the number of replicase, or to replace failed nodes.  
+Simply copying data could lead inconsistent data that every follower would see different points of database.  
+You could use locking the database for consistency, but that would go against the goal of high availability.
+
+**How can we set up new followers**
+
+1. Take a consistent snapshot of the leader's database
+2. Copy the snapshot to the new follower node
+3. The follower connects to the leader and requests all the data changes that have happened since the snapshot was taken 
+    - needs exact snapshot position (PostgresSql-_log sequence number_, MySQL-_binlog coordinates_)
+4. When the follower has processed the backlog of data changes since the snapshot, we say it _caught up_
 
 ### Handling Node Outages
 
