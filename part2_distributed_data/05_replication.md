@@ -94,6 +94,39 @@ You could use locking the database for consistency, but that would go against th
 
 ### Handling Node Outages
 
+Let's see how to handle individual node failures to keep the impact of a node outage as small as possible for operations and maintainance.  
+
+**Follower failure: Catch-up recover**
+
+The follower can recover quite easily.  
+It knows the last transaction that was processed before the fault occurred from the logs.  
+The follower can connect to the leader and request all the data changes.  
+
+**Leader failure: Failover**
+
+Trickier problem:  1. one of the followers need to be promoted to be a new leader
+2. clients need to be reconfigured to send their writes to the new leader, 
+3. other followers need to start consuming data changes from the new leader.  
+
+**Common automatic failover process**
+
+1. _Determining that the leader has failed_.  
+   - most system simply use a timeout
+2. _Choosing a new leader_. 
+   - appointed by a previously elected _controller node_
+   - usually the replica with the most up-to-date data changes from the old leader
+3. _Reconfiguring the system to use the new leader_.
+   - If the old leader comes back, the system need to ensure to follower and recognize the new leader.  
+
+**Points that can go wrong**
+
+- In asynchronous replications, the new leader may not have received all the writes from the old leader before it failed.  
+   - old leader's unreplicated writes to simply be discarded
+   - may violate clients' durability expectations
+- Discarding writes is especially dangerous if other storage systems outside the database need to be coordinated with the database contents.  
+- _split brain_: It could happen that two nodes both believe that they are the leader.  
+- What is the right timeout before the leader is declared dead?
+
 ### Implementation of Replication Logs
 
 ## Problems with Replication Log
