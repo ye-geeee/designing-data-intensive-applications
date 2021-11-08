@@ -244,6 +244,45 @@ A natural extension of the leader-based replication model is **to allow more tha
 
 ### Use Cases for Multi Leader Replication
 
+#### Multi-datacenter operation
+
+In a multi-leader configuration, you can have a leader in each datacenter.  
+Between datacenters, each datacenter's leader replicates its changes to the leaders in other datacenters.  
+
+_Performance_  
+- every write can be processed in the local datacenter and is replicated asynchronously
+- inter-datacenter network delay is hidden from users, which means the perceived performance may be better
+
+_Tolerance of datacenter outages_  
+- each datacenter can continue operating independently even though failover occurs
+
+_Tolerance of network problems_
+- a temporary network interruption does not prevent writes being processed  
+
+Downside of multi-leader replication:  
+- same data may be concurrently modified in two different datacenters, and those write conflicts must be resolved
+- auto-incrementing keys, triggers, and integrity constraints  
+
+-> multi-leader replication is often considered dangerous territory that should be avoided if possible.  
+
+#### Clients with offline operation
+
+Multi-leader replication is appropriate if you have an application that needs to continue to work while it ti disconnected from the internet.  
+In this case, every device has a local database that acts as a leaders, 
+and there is an asynchronous multi-leader replication process.  
+
+#### Collaborative editing
+
+_Real-time collaborative editing_ allows several people to edit a document simultaneously.  
+
+When one user edits a document, the changes are instantly applied to their local replica 
+and asynchronously replicated to the server and any other users who are editing the same document.  
+
+If you want to guarantee that there will be no editing conflicts, 
+the application must obtain a lock on the document before a user can edit it 
+which is just equal to single-leader replication.  
+For faster collaboration, make the unit of change very small and avoid locking.  
+
 ### Handling Write Conflicts
 
 ### Multi Leader Replication Topologies
