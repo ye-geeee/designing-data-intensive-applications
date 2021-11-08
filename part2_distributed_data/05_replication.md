@@ -211,9 +211,17 @@ Monotonic reads: a guarantee that this kind of anomaly does not happen.
 If a user makes a several reads from different replicas, it can cause _moving backward in time_.  
 ex. First, read data that catched up and read data from other replica next time that catch up was not succeeded.  
 
-One way of achieving monotonic reads is to make sure that each user always makes their reads from the same replica.  
+One way of achieving monotonic reads is to make sure that each user always makes their reads from the same replica.
 
 ### Consistent Prefix Reads
+
+Concerns about violation of causality  
+If some partitions are replicated slower than others, an observer may seed the answer before they see the question.  
+
+Preventing this kind of anomaly requires another type of guarantee: _consistent prefix reads_  
+If the database always applies writes in the same order, reads always see a consistent prefix, so this anomaly cannot happen.  
+However, many distributed databases, different partitions operate independently, so there is no global ordering of writes.  
+One solution is to make sure that ay writes that are causally related to each other are written to the same partition.
 
 ### Solutions for Replication Lag
 
