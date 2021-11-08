@@ -206,6 +206,13 @@ You have to consider additional issues:
 
 ### Monotonic Reads
 
+Monotonic reads: a guarantee that this kind of anomaly does not happen.  
+
+If a user makes a several reads from different replicas, it can cause _moving backward in time_.  
+ex. First, read data that catched up and read data from other replica next time that catch up was not succeeded.  
+
+One way of achieving monotonic reads is to make sure that each user always makes their reads from the same replica.  
+
 ### Consistent Prefix Reads
 
 ### Solutions for Replication Lag
