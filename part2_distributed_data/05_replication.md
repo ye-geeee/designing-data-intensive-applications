@@ -225,6 +225,14 @@ One solution is to make sure that ay writes that are causally related to each ot
 
 ### Solutions for Replication Lag
 
+_transactions_: they are a way for a database to provide stronger guarantees so that the application can be simpler.  
+However, in the move to distributed databases, many systems have abandoned them, 
+claiming that transaction are too expensive in terms of performance and availability, 
+and asserting that eventual consistency is inevitable in a scalable system.  
+
+topic transactions -> chap 7, 9  
+alternative mechanisms -> Part III
+
 ## Multi Leader Replication
 
 ### Use Cases for Multi Leader Replication
