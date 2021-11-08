@@ -183,6 +183,27 @@ When the lag is so large, the inconsistencies it introduces are not just a theor
 
 ### Reading Your Own Writes
 
+When new data is submitted, it must be sent to the leader and when the user views the data, it can be read from a follower.  
+In asynchronous replication, the new data may not yet have reached the replica.  
+In this situation, we need _read-after-write consistency_, also known as _read-your-writes-consistency_.  
+
+There are various possible techniques:  
+1. when reading something that the user may have modified, read it from leader; otherwise, read it form a follower
+   - you have some way of knowing whether something might have been modified, without querying it
+   - ex. read user's profile from leader, and other's profile with followers
+   - can negate the benefit of read scaling
+2. other criteria whether to read from the leader
+   - ex. one minute after the last update, monitor the replication lag on followers and prevent queries on any follower that is more than one minute behind the leader
+3. remember the timestamp of its most recent write
+   - ensure that the replica serving any reads for that user reflects updates at least until that timestamp(_logical timestamp_)
+    
+Another complication arises when the same user is accessing your service with multiple device.  
+In this case, you may want to provide _cross-device_ read-after-write consistency.  
+You have to consider additional issues: 
+- The metadata that updates have happened on the other device need to be centralized.  
+- If replicas are distributed across different datacenters, there is no guarantee that the connections will be routed to the same datacenter
+   - need to route requests from all of a user's devices to the same datacenter 
+
 ### Monotonic Reads
 
 ### Consistent Prefix Reads
