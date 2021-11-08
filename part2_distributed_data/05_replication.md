@@ -5,7 +5,7 @@
    - [Setting Up New Folowers](#Setting-Up-New-Followers)
    - [Handling Node Outages](#Handling-Node-Outages)
    - [Implementation of Replication Logs](#Implementation-of-Replication-Logs)
-2. [Problems with Replication Log](#Problems-with-Replication-Log)
+2. [Problems with Replication Lag](#Problems-with-Replication-Lag)
    - [Reading Your Own Writes](#Reading-Your-Own-Writes)
    - [Monotonic Reads](#Monotonic-Reads)
    - [Consistent Prefix Reads](#Consistent-Prefix-Reads)
@@ -129,7 +129,46 @@ Trickier problem:  1. one of the followers need to be promoted to be a new leade
 
 ### Implementation of Replication Logs
 
-## Problems with Replication Log
+#### Statement-based replication
+
+Leader logs every write request (_statements_) that it executes and sends that statement log to its followers.  
+Followings are some problems that can break down:  
+- Any statement that calls a nondeterministic functions(NOW(), RAND()) is likely to generate a differnet value on each replica
+- In case of auto-incrementing columns, must be executed the same order on each replica.  
+- Statements that have side effects may result in different side effects occurring on each replica.
+
+#### Write-ahead log (WAL) shipping
+
+- In case of a log-structured storage engine, this log is the main place for storage.  
+- B-tree, which overwrites individual disk blocks, 
+  every modification if first written to a write-ahead log so that the index can be stored to a consistent state after a crash.  
+  
+In either case, the log is an append-only sequence of bytes.  
+Besides, writing the log to disk, the leader sends it across the network to its followers.  
+
+Main disadvantage: log describes the data on a very low level
+
+#### Logical (row-based) log replication
+
+Use different log formats for replication and for the storage engine, 
+which allows the replication log to be decoupled from the storage engine internals.  - _logical logs_
+
+- more easily kept backward compatible, allowing the leader and the follower to run different versions of the database software
+- easier for external applications to parse
+
+#### Trigger-based replication
+
+When you need flexibility 
+- if you want to only replicate a subset of the data, replicate from one kind of database to another, if you need conflict resolution logic  
+You can use _triggers and stored procedures_ for alternative.  
+  
+A trigger lets you register custom application code that is automatically executed when a data change.  
+Trigger-based replication typically has greater overheads than other replication methods, but it's very useful due to its flexibility.  
+
+<br/>
+
+## Problems with Replication Lag
+
 
 ### Reading Your Own Writes
 
