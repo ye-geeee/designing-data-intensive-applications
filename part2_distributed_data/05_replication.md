@@ -233,7 +233,14 @@ and asserting that eventual consistency is inevitable in a scalable system.
 topic transactions -> chap 7, 9  
 alternative mechanisms -> Part III
 
+<br/>
+
 ## Multi Leader Replication
+
+major downside of leader-based replication: there is only one leader, and all writes must go through it
+
+_multi-leader_ configuration (also known as _master-master_ or _active/active replication_: 
+A natural extension of the leader-based replication model is **to allow more than one node to accept writes**.
 
 ### Use Cases for Multi Leader Replication
 
