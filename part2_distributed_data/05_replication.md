@@ -73,7 +73,7 @@ One for _synchronous_ and others for _asynchronous_.
 
 **Leader-based Replication with Fully Asynchronous**
 
-- often case,  widely used
+- often case, widely used
 - write is not guaranteed to be durable
 - leader can continue process writes, even if all of its followers have fallen behind
 - _chain replication_ to provide good performance and availability implemented in Microsoft Azure Storage
@@ -169,6 +169,17 @@ Trigger-based replication typically has greater overheads than other replication
 
 ## Problems with Replication Lag
 
+Leader-based replication
+
+- all writes to go through a single node, but read only queries can go to any replica
+- In _read-scaling_ architecture, just increase the capacity for service read-only requests simply by adding more followers
+- However, this approach only realistically works with **asynchronous replication** not **synchronous replication** case
+- Unfortunately, in case of asynchronous follower, it may see outdated information if the follower has fallen behind
+
+_eventually consistency_: temporary inconsistency in case of asynchronous followers, eventually the followers catch up if you stop writing database and wait  
+_the replication lag_: the delay between a write happening on the leader and being reflected on a follower
+
+When the lag is so large, the inconsistencies it introduces are not just a theoretical issue but a real problem for applications.  
 
 ### Reading Your Own Writes
 
