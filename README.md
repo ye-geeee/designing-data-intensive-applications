@@ -15,7 +15,7 @@
 
 |What|Date|Progress|
 |-----|----|---|
-|5. Replication| |:x:|
+|[5. Replication](part2_distributed_data/05_replication.md)| 21.11.10 |:white_check_mark:|
 |6. Partitioning| |:x:|
 |7. Transactions| |:x:|
 |8. The Trouble with Distributed Systems| |:x:|
