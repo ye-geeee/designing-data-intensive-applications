@@ -353,12 +353,80 @@ _all-to-all_
 
 ## Leaderless Replication
 
+Some data storage systems take a different approach, abandoning the concept of a leader 
+and allowing any replica to directly accept writes from clients(leaderless).  
+: _Dynamo-style_
+
+- used by Dynamo, Riak, Cassandra, Voldemort
+
 ### Writing to the Database When a Node Is Down
+
+In a leaderless configuration, failover does not exist.  
+The client sends write to some replicas in parallel, and sends read request to several nodes in parallel.  
+
+**_Read repair and anti-entropy_**
+
+After an unavailable node comes back online, how does it catch up on the writes that it missed?
+
+1. _Read repair_
+
+The stale responses can be detected when a client makes a read from several nodes is parallel.  
+This approach works well for values that are frequently read.  
+
+2. _Anti-entropy process_
+
+Some datastores have a background process that constantly looks for differences in the data between replicas 
+and copies any missing data from one replica to another.  
+Without an anti-entropy process, values that are rarely read may be missing.  
+
+**_Quorums for reading and writing_**
+
+If there are _n_ replicas, every write must be confirmed by _w_ nodes to be considered successful, and we must at least _r_ nodes for each read.  
+
+_w + r > n_  
+-> we expect to get an up-to-date value when reading  
+Reads and writes that obey these _r_ and _w_ values are called _quorum_ reads and writes.  
+
+Commonly, _n_ is an odd number, _w_ = _r_ = _(_n_ + 1)/2 (rounded up)  
+
+Normally, read and writes are always sent to all _n_ replicas in parallel.  
+The parameter _w_ and _r_ determine how many nodes we wait for.
 
 ### Limitations of Quorum Consistency
 
+In case of _w + r <= n_,  
+reads and writes will still be sent to _n_ nodes, but a smaller number of successful responses is required for the operation to succeed.  
+It's more likely that our read didn't include the node with the latest value, 
+but this configuration allows lower latency and higher availability.  
+
+edge cases where stale values are returned
+
+- w writes may end up on different nodes that the r reads : no guaranteed overlap
+- not clear which one happened first -> safe solution to merge the concurrent writes
+- if a write happens concurrently with a read
+- if a write succeeded on some replicas but failed on others
+
+Stronger guarantees generally require transactions or consensus.
+
+#### Monitoring staleness
+
+Even if your application can tolerate stale reads, you need to be aware of the health of your replication.  
+In systems with leaderless replication, there is no fixed order in which writes are applied, which makes monitoring more difficult.  
+- unfortunately not yet common practice... 
+
 ### Sloppy Quorums and Hinted Handoff
+
+#### Multi-datacenter operation
 
 ### Detecting Concurrent Writes
 
+#### Last writes wins (discarding concurrent writes)
+
+#### The "happens-before" relationship and concurrency
+
+#### Capturing the happens-before relationship
+
+#### Merging concurrently written values
+
+#### Version vectors
 
