@@ -442,11 +442,34 @@ since it is designated to tolerate conflicting concurrent writes, network interr
 
 #### Last writes wins (discarding concurrent writes)
 
+- declare that each replica need only store that the most "recent" value and allow "older" values to be overwritten and discarded
+- It there is no natural ordering, we can force an arbitrary order
+- cons
+    - it's not clear which one happened first
+    - durability: if there are several concurrent writes to same key, only one of the writes will survive and others will be discarded
+- Cassandra support, Riak option support
+
 #### The "happens-before" relationship and concurrency
+
+- ex. A's insert _happens before_ B's increment
+- B is _casually dependent_ on A
+- We can simply say tha two operations are _concurrent_ if neither happens before the other
 
 #### Capturing the happens-before relationship
 
+- use version number for every key
+
 #### Merging concurrently written values
+
+If several operations happen concurrently, clients have to clean up afterward by merging the concurrently written values.  
+In Riak, it is called _siblings_.  
+
+A simple approach is to just pick one of the values based on a version number or timestamp.  
+In case of remove, the system must leave a marker with an appropriate version number to indicate that the item has been removed when merging siblings.  
 
 #### Version vectors
 
+We need to use a version number _per replica_ as well as per key.  
+The collection of version numbers from all the replicas is called a _version vector_.  
+The most interesting is probably the _dotted version vector_.  
+The version vector allows the database to distinguish between overwrites and concurrent writes.  
