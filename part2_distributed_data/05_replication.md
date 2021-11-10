@@ -416,7 +416,27 @@ In systems with leaderless replication, there is no fixed order in which writes 
 
 ### Sloppy Quorums and Hinted Handoff
 
+Database with appropriately configured quorums
+
+- tolerate the failure of individual nodes without the need for failover and also slow
+- appealing for use cases that require high availability and low latency
+
+Quorums are not as fault-tolerant as they could be.  
+It's likely that fewer than _w_ or _r_ reachable nodes remain, client can no longer reach a quorum.  
+
+_sloppy quorum_: writes and reads still require _w_ and _r_ successful responses, but those may include nodes that are not among 
+  the designated _n_ "home" nodes for a value.  
+  
+_hint handoff_: Once the network interruption is fixed, any writes that one node temporarily accepted on behalf of another node are 
+  sent to the appropriate "home" nodes.
+
+Sloppy quorums are particularly useful for increasing write availability: as long as _w_ nodes are available.  
+It's only an assurance of durability, there is no guarantee that a read of _r_ nodes will see it until the hinted handoff has completed.  
+
 #### Multi-datacenter operation
+
+Leaderless replication is also suitable for multi-datacenter operation, 
+since it is designated to tolerate conflicting concurrent writes, network interruptions, and latency spikes.  
 
 ### Detecting Concurrent Writes
 
