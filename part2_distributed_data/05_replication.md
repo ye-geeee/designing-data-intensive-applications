@@ -285,7 +285,71 @@ For faster collaboration, make the unit of change very small and avoid locking.
 
 ### Handling Write Conflicts
 
+The biggest problem with multi-leader replication: write conflicts can occur, which means that conflict resolution is required.  
+When the changes are asynchronously replicated, a conflict is detected.  
+This problem does not occur in a single-leader database.
+
+#### Synchronous versus asynchronous conflict detection
+
+- make the conflict detection synchronous
+    - wait for the write to be replicated to all replicas before telling the user that the write was successful.  
+    - lose the main advantage of multi-leader replication
+- just use single-leader replication
+
+#### Conflict avoidance
+
+- ensure that all writes for a particular record go through the same leader, then conflicts cannot occur
+- avoiding conflicts is a frequently recommended approach
+
+#### Converging toward a consistent state
+
+A single-leader database case:  
+database applies writes in a sequential order
+
+Multi-leader configuration:  
+no defined ordering of writes, so it's not clear what the final value should be  
+
+Database must resolve the conflict in a _convergent_ way which means that all replicas must arrive at the same final value 
+when all changes have been replicated.  
+Various ways of achieving convergent conflict resolution:  
+
+1. Give each write a unique ID, and use timestamp for _last write wins_.  Popular but it is dangerously prone to data loss
+2. Give each replica a unique ID, and originate a higher numbered replica always take precedence over writes  
+3. Merge the value together - concatenate
+4. Record the conflict in an explicit data structure and write application code that resolves the conflict at some later time
+
+#### Custom conflict resolution logic
+
+_On write_: as soon as the database system detects a conflict in the log of replicated changes, it calls the conflict handler  
+_On read_: when a conflict is detected, all the conflicting writes are stored and prompt the user or automatically resolve the conflict
+
+#### Automatic Conflict Resolution
+
+- _Conflict-free replicated datatypes_(CRDTs) 
+  - automatically resolve conflicts in sensible ways. (Riak 2.0)
+- _Mergeable persistent data structures_
+    - track history explicitly, and use a three-way merge function (CRDTs use two-way merge function)
+- _Operational transformation_
+    - used in collaborative editing applications
+
 ### Multi Leader Replication Topologies
+
+_replication topology_ describes teh communication paths along which writes are propagated from one node to another.  
+
+![02_multi-leader_replication_topology](../resources/part2/02_multi-leader_replication_topology.png)
+
+_circular topology & star topology_
+
+- MySQL default supports circular topology
+- nodes need to forward data changes they receive from other nodes
+- cons: if just one node fails, it can interrupt the flow of replication message between other nodes
+
+_all-to-all_  
+
+- most general topology
+- every leader sends its writes to every other leader
+- some network links may be faster than oters -> writes may arrive in the wrong order at some replicas
+- to order events correctly, a technique called _version vectors_ can be used
 
 ## Leaderless Replication
 
