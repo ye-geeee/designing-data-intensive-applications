@@ -111,9 +111,44 @@ as they have to read the data from all keys and combine it.
 
 ## Partitioning and Secondary Indexes
 
+A secondary index usually doesn't identify a record uniquely but rather is a way of searching for occurrences of a particular value.  
+Many key-value stores have avoided secondary indexes because of their added implementation complexity,  
+but some have started adding them because they are so useful for data modeling.  
+
+Problem with secondary indexes is that they don't map neatly to partitions.  
+Therefore, there are two main approaches:  
+1. document-based partitioning
+2. term-based partitioning
+
 ### Partitioning Secondary Indexes by Document
 
+Each partition maintains its own secondary indexes, covering only the documents in that partition.  
+For that reason, a document-partitioned index is also known as a _local index_.  
+
+You need to send the query to _all_ partitions, and combine all the results you get back.  
+This approach to querying a partitioned database is sometimes knows ans _scatter/gather,  
+and it can make read queries on secondary indexes quite expensive.
+
 ### Partitioning Secondary Indexes by Term
+
+Rather than each partition having its own secondary index (_a local index),  
+we can construct a _global index_ that covers data in all partitions.  
+
+_term-partitioned_: the term we're looking for determines the partition fo the index 
+
+**Advantage**
+
+- useful for range scans
+    - vs partitioning on a hash of the term gives a more even distribution of load
+- reads more efficient
+    - a client only needs to make a request to the partition containing the term that it wants
+
+**Disadvantage**
+
+- slower and more complicated
+- require a distributed transaction across all partitions affected by a write
+    - not supported in all databases
+    - In practice, updates to global secondary indexes are often asynchronous
 
 ## Rebalancing Partitions
 
