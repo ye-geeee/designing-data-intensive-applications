@@ -30,6 +30,14 @@ In this chapter, we will look at
 
 ## Partitioning and Replication
 
+Partitioning is usually combined with replication so that copies of each partition are stored on multiple nodees.  
+It may still be stored on different nodes for fault tolerance.  
+
+In a leader-follower replication model,  
+each partition's leader is assigned to one node, and its followers are assigned to other nodes.  
+
+![03_partitioning_and_replication](../resources/part2/03_partitioning_and_replication.png)
+
 ## Partitioning of Key Value Data
 
 ### Partitioning by Key Range
