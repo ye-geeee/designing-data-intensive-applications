@@ -230,6 +230,59 @@ Does the rebalancing happen automatically or manually?
 
 For that reason, it can be a good thing to have a human in the loop for rebalancing.  
 
+<br/>
+
 ## Request Routing
 
+_service discovery_ problem:  
+
+When a client wants to make a request, how does it know which node to connect to?  
+As partitions are rebalanced, the assignment of partitions to nodes changes.  
+
+**Approaches to this problem**
+
+1. Allow clients to contact any node - forwards request to the appropriate node, receives the reply, and passes the reply along to the client
+2. Send all requests from clients to routing tier first
+3. Require that clients be aware of the partitioning, and the assignment of partitions to nodes
+
+In all cases, the key problem is: how does the component making the routing decision  
+which is a challenging problem.  
+
+**Way 1. Use separate coordination service**
+
+Zookeeper
+
+- keep track of the cluster metadata
+- maintains the authoritative mapping of partitions to nodes
+- whenever a partition changes ownership, ZooKeeper notifies the routing tiers so that it can keep its routing information up to date 
+
+HBase, SolrCloud, Kafka use Zookeeper  
+MongoDB use its own _config server_ and _mongos_ daemons as the routing tier
+
+**Way 2. Use _gossip protocol_**
+
+Cassandra and Riak use a _gossip protocol_ among the nodes to disseminate any changes in cluster state.  
+Requests can be sent to any node, and that node forwards them to the appropriate node for the requested partition.  
+This model puts more complexity in the database nodes but avoids the dependency on an external coordination service such as Zookeeper.  
+
+**Way 3. Does not rebalance automatically**
+
+Couchbase does not rebalance automatically.  
+It is configured with a routing tier called _moxi_.
+
+<br/>
+
+In addition, when using a routing tier or when sending requests to a random node,  
+clients still need to find the IP addresses to connect to.  
+Therefore, the DNS could be sufficient to use.  
+
 ### Parallel Query Execution
+
+All of the examples above was very simple queries that is supported by most NoSQL distributed datastores.  
+
+However, _massive parallel processing(MPP)_ relational database product which is often used for analytics,  
+are much more sophisticated in the types of queries they support.  
+The MPP query optimizer breaks this complex query into a number of execution stages and partitions,  
+many of which can be executed in parallel on different nodes of the database cluster.  
+Queries that involve scanning over large parts of the dataset particularly benefit from such parallel execution.  
+
