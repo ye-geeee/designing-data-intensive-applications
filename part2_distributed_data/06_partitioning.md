@@ -1,4 +1,4 @@
-# Chapter 5. Replication
+# Chapter 6. Partitioning
 
 1. [Partitioning and Replication](#Partitioning-and-Replication)
 2. [Partitioning of Key Value Data](#Partitioning-of-Key-Value-Data)
