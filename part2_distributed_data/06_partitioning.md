@@ -152,9 +152,83 @@ _term-partitioned_: the term we're looking for determines the partition fo the i
 
 ## Rebalancing Partitions
 
+Things change in a database: 
+
+• The query throughput increases, so you want to add more CPUs to handle the load.
+• The dataset size increases, so you want to add more disks and RAM to store it.
+• A machine fails, and other machines need to take over the failed machine’s responsibilities.
+
+_rebalancing_: the process of moving load from one node in cluster to another
+
 ### Strategies for Rebalancing
 
+#### How not to do it: hash modd N
+
+If the number of nodes _N_ changes, most of the keys will need to be moved from one node to another.  
+
+#### Fixed number of partitions 
+
+Create many more partitions than there are nodes, and assign several partitions to each node.  
+If a node is added to the cluster, the new node can _steal_  a few partitions from every existing node until partitions are fairly distributed again.  
+The number of partitions does not change, nor does the assignment of keys to partition to nodes.  
+The only thing that changes is the assignment of partitions to nodes.  
+
+Choosing the right number of partitions is difficult if the total size of the dataset is highly variable.  
+If partitions are very large, rebalancing and recovery from node failures become expensive.  
+The best performance is achieved when the size of partitions is "just right".  
+
+#### Dynamic partitioning
+
+A fixed number of partitions with fixed boundaries would be very inconvenient:  
+if you got the boundaries wrong, you could end up with all data in one partitions empty.  
+Reconfiguring the partition boundaries manually would be very tedious.  
+ex. HBase, RethinkDB
+
+partition grows and exceed a configured size -> split into two partitions  
+lots of data is deleted, and a partition shrinks below threshold -> merged with an adjacent partition  
+This process is similar to what happens at the top level of a B-tree.  
+
+**Advantage**
+
+- the number of partitions adapts to the total data volume
+
+**Disadvantage**
+
+- an empty databases starts off with a single partition
+- there is no _a priori_ information about where to draw the partition boundaries
+
+_pre-splitting_: HBase and MongoDB allow an initial set of partitions to be configured on an empty database
+
+Dynamic partitioning is suitable for both key range-partitioned data and hash-partitioned data.  
+
+#### Partitioning proportionally to nodes
+
+For third option, Cassandra and Ketama supports to make the number of partitions proportional to the number of nodes.  
+- in other words, to have a fixed number of partitions _per node_.  
+Since a larger data volume generally requires many nodes to store, this approach also keeps the size of each partition fairly stable.  
+
+Picking partition boundaries randomly requires that hash-based partitioning is used.  
+Indeed, this approach corresponds most closely to the original definition of consistent hashing.  
+
 ### Operations Automatic or Manual Rebalancing
+
+Does the rebalancing happen automatically or manually?
+
+**Advantage of Fully automated rebalancing**
+
+- convenient, less operational work to do for normal maintenance
+
+**Critical Disadvantage of Fully automated rebalancing**
+
+- unpredictable
+- rebalancing is an expensive operation 
+  - requires rerouting requests and moving a large amount of data from one node to another
+- overload the network or the nodes and harm the performance of other request while the rebalancing is in progress
+- dangerous in combination with automatic failure detection
+  - if node is overloaded and is temporarily slow, the other nodes can conclude that the overloaded node is dead, 
+    therefore, automatically rebalance the cluster to move load away from it
+
+For that reason, it can be a good thing to have a human in the loop for rebalancing.  
 
 ## Request Routing
 
