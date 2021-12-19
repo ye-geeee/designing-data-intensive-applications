@@ -43,13 +43,51 @@ There are two view points of transactions,
 
 ### The Meaning of ACID
 
+ACID, stands for _Atomicity, Consistency, Isolation, and Durability_.  
+It was coined in 1983 by Theo Harder and Andreas Reuter to establish precise teminology for fault-tolerance mechanisms in databases.  
+However, in practice, one database's implementation of ACID does not equal another's implementation.  
+There is a lot of ambiguity around the meaning of _isolation_.  
+
 #### Atomicity
+
+In general, _atomic_ refers to something that cannot be broken down into smaller parts.  
+ACID atomicity describes what happens if a client wants to make several writes, but a fault occurs after some of the writes have been processed.  
+If the writes are grouped together into an atomic transaction, and the transaction cannot be completed(_committed_) due to a fault, 
+than the transaction is _aborted_ and database must discard or undo any writes it has made.  
+
+Atomicity simplifies this problem: if a transaction was aborted, the application can be sure that it didn't change anything, so it can safely be retired.  
 
 #### Consistency
 
+In the context of ACID, _consistency_ refers to an application-specific notion of the database being in a "good state.".  
+Therefore, you have certain statements about your data(_invariants_) that must always be true.  
+
+However, this idea of consistency depends on the application's notions of invariants, 
+and it's the application's responsibility to define its transactions correctly so that they preserve consistency.  
+
+Atomicity, isolation, and durability are properties of the database, whereas consistency (in the ACID sense) is a property of the application.  
+
 #### Isolation
 
+Most databases are accessed by several clients at the same time.  
+If they are accessing the same database records, you can run into concurrency problems (race conditions).  
+
+_Isolation_ is the sense of ACID means that concurrently executing transactions are isolated from each other: they cannot step on each other's toes.  
+The classic database textbooks formalize isolation as _serializability_:  
+each transaction can pretend that it is the only transaction running on the entire database.  
+
+However, in practice, serializable isolation is rarely used, because it carries a performance penalty.  
+Some popular databases, such as Oracle 11g, don't even implement it.  
+There is an isolation level called "serializable", which actually implements something called _snapshot isolation_.
+
 #### Durability
+
+_Durability_ is the promise that once a transaction has committed successfully, 
+any data it has written will not be forgotten, even if there is a hardware fault, or the database crashes.  
+
+In a single-node database, durability means that the data has been written to nonvolatile storage.  
+In a replicated database, durability many mean that data has been successfully copied to some number of nodes.  
+In order to provide a durability guarantee, a database must wait until these writes or replications are complete before reporting a transaction as successfully committed.  
 
 ### Single Object and Multi Object Operations
 
