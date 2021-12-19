@@ -29,6 +29,18 @@ that can occur and how databases implement isolation levels such as _read commit
 
 ## The Slippery Concept of a Transaction
 
+Almost all relational databases, and some nonrelational databases, support transactions.  
+Most of them follow the style of IBM System R introduced in 1975.
+
+In the late 2000s, nonrelational databases started gaining popularity.  
+Many of this new generation of databases abandoned transactions entirely, 
+or redefined the word to describe a much weaker set of guarantees than had previously been understood.  
+
+Like every other technical design choice, transactions have advantages and limitations.  
+There are two view points of transactions,  
+- any large-scale system would have to abandon transactions to maintain good performance and high availabilty
+- transactional guarantees are an essential requirement for "serious application" with "valuable data"
+
 ### The Meaning of ACID
 
 #### Atomicity
