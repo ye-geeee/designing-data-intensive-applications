@@ -87,15 +87,53 @@ any data it has written will not be forgotten, even if there is a hardware fault
 
 In a single-node database, durability means that the data has been written to nonvolatile storage.  
 In a replicated database, durability many mean that data has been successfully copied to some number of nodes.  
-In order to provide a durability guarantee, a database must wait until these writes or replications are complete before reporting a transaction as successfully committed.  
+In order to provide a durability guarantee, a database must wait until this writes or replications are complete before reporting a transaction as successfully committed.  
 
 ### Single Object and Multi Object Operations
 
+_Multi-object_ are often needed if several pieces of data need to kept in sync.  
+Isolation would have prevented this issue by ensuring multiple pieces of data to be updated in set.  
+
+Multi-object transactions require some way of determining which read and write operations belong to the same transaction.  
+In relational databases, that is typically done based on the client's TCP connection to the database server:  
+on any particular connection, everything between a BEGIN TRANSACTION and a COMMIT statement is considered to be part of the same transaction.  
+
+On the other hand, many nonrelational databases don't have such a way of grouping operations together.  
+Even if there is a multi-object API, that doesn't mean it has transaction semantincs:  
+the command may succeed for some keys and fail for others, leaving the database in a partially updated state.  
+
 #### Single-object writes
+
+Atomicity and isolation also apply when a single object is being changed.  
+Atomicity can be implemented using a log for crash recovery, and isolation can be implemented using a lock on each object.  
+
+Some databases also provide more complex atomic operations, such as an increment operation, 
+which removes the need for a read-modify-write cycle.  
+Similarly, popular is a compare-and-set operation, which allows a write to happen only if the value has not been concurrently changed by someone else.  
+
+A transaction is usually understood as a mechanism for grouping multiple operations on multiple objects into one unit of execution.  
 
 #### The need for multi-object transactions
 
+There is nothing the fundamentally prevents transactions in a distributed database.  
+However, in many other cases writes to several objects need to be coordinated:  
+
+- When a row in one table which has foreign key reference to a row in another table in a relational model 
+- When denormalized information needs to be updated in a document data model
+- When indexes need to be updated everytime you change a value in databases with secondary indexes
+
 #### Handling errors and aborts
+
+A key feature of a transaction is that it can be aborted and safely retried if an error occurred.
+Although retrying an aborted transaction is a simple and effective error handling mechanism, it isn't perfect:  
+
+- If transaction succeeded, but network failed while the server tried to ack to client - perform twice
+- If the error is due to overload, retrying the transaction will make the problem worse - you have to limit the number of retries, use exponential backoff, and handle overload-related errors differently from other errors
+- If the transaction also has side effects outside the database - to make sure that several systems either commit or abort together, two-phase commit can help
+
+So, not all systems follow this error handling.  
+Datastores with leaderless replication work much more on a "best effort" basis.  
+In case of popular object-relational mapping(ORM) frameworks such as Rail's ActiveRecord and Django don't retry aborted transactions.
 
 ## Weak Isolation Levels
 
