@@ -137,6 +137,23 @@ In case of popular object-relational mapping(ORM) frameworks such as Rail's Acti
 
 ## Weak Isolation Levels
 
+Concurrency bugs are hard to find by testing, because such bugs are only triggered when you get unlucky with the timing.  
+Having many concurrent users makes it much harder to develop applications, 
+so databases have long tried to hide concurrency issues from application developers by providing _transaction isolation_.  
+
+In practice, isolation is unfortunately not that easy.  
+Serializable isolations has a performance cost, therefore, common for systems to use weaker levels of isolation, which protect against some concurrency issues, but not all.  
+
+Even many popular relational database systems use weak isolation, 
+they wouldn't necessarily have prevented these bugs from occurring.  
+Therefore, rather than blindly relying on tools, we need to develop a good understanding of the kinds of concurrency problems that exist, and how to prevent them.  
+
+We will learn:  
+
+- isolation levels that are used in practice
+- what kinds of race conditions can cannot occur
+- serializability in detail
+
 ### Read Committed
 
 #### No dirty reads
