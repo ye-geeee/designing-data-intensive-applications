@@ -156,11 +156,43 @@ We will learn:
 
 ### Read Committed
 
+The most basic level of transaction isolation is _read committed_.  
+It makes two guarantees: _no dirty reads, no dirty writes_
+
 #### No dirty reads
+
+_dirty read_: if a transaction has not yet committed or aborted, but another transaction could see that uncommitted data
+
+Any writes by a transaction only become visible to others when that transaction commits.  
+It is useful for below reasons:  
+
+- Seeing the database in a partially updated state is confusing to users and many cause other transactions to take incorrect decisions
+- If a transaction aborts, any writes it has made need to be rolled back
 
 #### No dirty writes
 
+_dirty writes_: If the earlier write is part of transaction that has not yet committed, so that later write overwrites an uncommitted value
+
+By preventing dirty writes, it can avoid below kinds of concurrency problems:  
+
+- If transactions update multiple objects, dirty writes can lead to a bad outcome. 
+- Make data updates safe
+
 #### Implementing read committed
+
+Read committed is a very popular isolation level.  
+It is default setting in Oracle 11g, PostgreSQL, SQL Server 2012, MemSQL, and many other databases.  
+
+Most commonly, databases prevent dirty writes by using row-level locks:  
+must first acquire a lock on that object.  
+Therefore, only one transaction can hold the lock for any given objects.  
+
+However, the approach of requiring read locks does not work well in practice, 
+because one long-running write transaction can force many read-only transactions to wait until the long-running transaction has completed.  
+This harms the response time of read-only transactions and is bad for operabiltiy.  
+
+For that reason, the database remembers both old and new value.  
+While the transaction is ongoing, any other transactions that read the object are simply given the old value.  
 
 ### Snapshot Isolation and Repeatable Read
 
