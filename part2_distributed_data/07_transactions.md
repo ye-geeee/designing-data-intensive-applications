@@ -196,13 +196,70 @@ While the transaction is ongoing, any other transactions that read the object ar
 
 ### Snapshot Isolation and Repeatable Read
 
+Even though you can get much stronger guarantees by using the read committed isolation, 
+you can meet anomaly called a _nonrepeatable read_ or _read skew_:  
+user can see different value that in previous query.  
+
+In user case, this is not a lasting problem.  
+However, some situations cannot tolerate such temporary inconsistency:  
+
+- _Backups_: end up with some parts of the backup containing an older version of data
+- _Analytic queries and integrity checks_: return nonsensical results if they observe parts of the database at different points in time. 
+
+_Snapshot isolation_ is the most common solution to this problem.  
+This idea is that each transaction reads from a _consistent snapshot_ of the database.  
+Even if the data is subsequently changed by other transaction, each transaction sees only the old data from that particular point in time.  
+This is a popular feature: supported by PostgreSQL, MySQL with the InnodB storage engine, Oracle, SQL Server, and others.  
+
 #### Implementing snapshot isolation
+
+Like read committed isolation, implementations of snapshot isolation typically use **write locks** to prevent dirty writes and **reads do not require any locks**.  
+From a performance point of view, a key principle of snapshot isolation is 
+_readers never block writes, and writers never block readers_.  
+
+To implement snapshot isolation, the database must potentially keep several committed versions of an object.  
+This technique is known as _multi-version concurrency control_(MVCC).  
+
+A typical approach is that read committed uses a separate snapshot for each query,  
+while snapshot isolation uses the same snapshot for an entire transaction.  
+
+![04_snapshos_isolation_postgreSQL](../resources/part2/04_snapshos_isolation_postgreSQL.png)
+
+Above picture shows how snapshot isolation works.  
+Each row in a table has a `created_by` field and `deleted_by` field.  
+`created_by` field contains the ID of the transaction that inserted this row into the table.  
+`deleted_by` field is initially empty, and a transaction marks a row for deletion by updating.  
+The row is not actually deleted from the database, and at some later time, 
+when it is certain that no transaction can any longer access the deleted data, a garbage collection process removes any rows marked for deletion.  
 
 #### Visibility rules for observing a consistent snapshot
 
+1. At the start of each transaction, the database makes a list of all the other transactions that are in progress at that time. 
+Any writes that those transactions have made or ignored, even if the transactions subsequently commit.
+2. Any writes made by aborted transactions are ignored.
+3. Any writes made by transactions with a later transaction ID are ignored, regardless of whether those transactions have committed.  
+4. All other writes are visible to the application's queries.
+
+By never updating values in place but instead creating a new version every time a value is changed, 
+the database can provide a consistent snapshot while incurring only a small overhead.  
+
 #### Indexes and snapshot isolation
 
+Many implementation details determine the performance of multi-version concurrency control.  
+PostgreSQL has optimizations for avoiding index updated if different versions fo the same object can fit on the same page.  
+CouchDB, Datomic, and LMDB use B-trees with an _append-only/copy-on-write_ variant not to overwrite pages of the tree when they are updated, but instead create a new copy of each modified page.  
+
+With append-only B-trees, every write transaction creates a new B-tree root.  
+There is no need to filter out objects based on transaction IDs.  
+However, this approach also requires a background process for compaction and garbage collection.  
+
 #### Repeatable read and naming confusion
+
+Snapshot isolation is a useful isolation level, especially for read-only transactions.  
+In Oracle, it is called _serializable_, and in PostgreSQL and MySQL _repeatable read_.  
+
+There are no standard about this concept, 
+and even though several databases implement repeatable read, there are big differences in guarantees they actually provide.  
 
 ### Preventing Lost Updates
 
