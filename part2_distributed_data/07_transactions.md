@@ -263,15 +263,61 @@ and even though several databases implement repeatable read, there are big diffe
 
 ### Preventing Lost Updates
 
+There are several other interesting kinds of conflicts that can occur between concurrently writing transactions.  
+The best known of these is the _lost update_ problem.  
+
+The lost update problem can occur when two transaction read some value from the database, modifies it, and writes back the modified value(a _read-modify-write cycle_) and one of the modifications can be lost.
+
 #### Atomic write operations
+
+Many databases provide atomic update operations, which remove the need to implement read-modify-write cycles in application code.  
+
+Way 1. Atomic operations are usually implemented by taking an exclusive lock on the object 
+when it is read so that no other transaction can read it until the update has been applied.  
+> This technique is sometimes known as _cursor stability_.
+
+Way 2. Simply force all atomic operations to be executed on a single thread.  
 
 #### Explicit locking
 
+If the database's built-in atomic operations don't provide the necessary functionality, 
+application have to explicitly lock objects that are going to be updated.  
+Then the application can perform a read-modify-write cycle, 
+and if any other transaction tries to concurrently read the same object, 
+it is forced to wait until the first read-modify-write cycle has completed.  
+
+However, it's easy to forget to add a necessary lock somewhere in the code, 
+and thus introduce a race condition.  
+
 #### Automatically detecting lost updates
+
+Atomic operations and locks are ways of preventing lost updates by forcing the read-modify-write cycles to happen sequentially 
+allowing them to execute in parallel.  
+
+PostgreSQL's repeatable read, Oracle's serializable, and SQL Server's snapshot isolation - automatically detect when a lost update has occurred.  
+MySQL/InnoDB's repeatable read does not detect lost updates - database must prevent lost updates as providing snapshot isolation
 
 #### Compare-and-set
 
+Compare-and-set is to avoid lost updates by allowing an update to happen
+only if the value has not changed since you last read it.  
+
+If the content has changed and no longer matcher `old content`, this update will have no effect, 
+so you need to check whether the update took effect and retry if necessary.  
+This way may not prevent lost updates, so check whether your database's compare-and-set operation is safe before relying on it.  
+
 #### Conflict resolution and replication
+
+In replicated database with multi-leader or leaderless replication 
+allow several writes to happen concurrently and replicate them asynchronously, 
+so they cannot guarantee that there is a single up-to-date copy of the data.  
+Thus, techniques based on locks or compare-and-set do not apply in this context.  
+
+A common approach in such replicated databases is 
+1. to allow concurrent writes to create several conflicting versions of a value
+2. use application code of special data structures(ex. Riak)
+
+On the other hand, the _last write sins(LWW) conflict resolution method is prone to lost upates.  
 
 ### Write Skew and Phantoms
 
