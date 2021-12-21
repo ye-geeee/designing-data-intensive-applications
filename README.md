@@ -17,7 +17,7 @@
 |-----|----|---|
 |[5. Replication](part2_distributed_data/05_replication.md)| 21.11.10 |:white_check_mark:|
 |[6. Partitioning](part2_distributed_data/06_partitioning.md)| 21.11.17 |:white_check_mark:|
-|7. Transactions| |:x:|
+|[7. Transactions](part2_distributed_data/07_transactions.md)| 21.12.22 |:white_check_mark:|
 |8. The Trouble with Distributed Systems| |:x:|
 |9. Consistency and Consensus| |:x:|
 
