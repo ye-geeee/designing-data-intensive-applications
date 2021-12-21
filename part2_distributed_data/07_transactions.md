@@ -323,11 +323,41 @@ On the other hand, the _last write sins(LWW) conflict resolution method is prone
 
 #### Characterizing write skew
 
+_write skew_: two transactions are updating two different objects and cause a race condition  
+Write skew can occur if two transactions read the same objects, and then update some of those objects.
+
+- Atomic single-object operations don't help, as multiple objects are involved
+- Automatic detection of lost updates doesn't help. Automatically preventing write skew requires true serializable isolation
+- Some databases allow you to configure constraints, and most databases do not have built-in support for this
+- Explicitly lock the rows that the transaction depends on
+
 #### More examples of write skew
+
+Meeting room booking system, Mutiplayer game, Claiming a username, Preventing double-spending... 
 
 #### Phantoms causing write skew
 
+Pattern of above examples:
+
+1. A SELECT query checks whether some requirement is satisfied by searching for rows that match some search condition
+2. Depending on the result of the first query, the application code decides how to continue
+3. If the application decides to go ahead, it makes a write
+
+The effect of this write changed the precondition of the decision of step 2. 
+
+_phantom_: a write in one transaction changes the result of a search query in another transaction
+
+Snapshot isolation avoids phantoms in read-only queries, but in read-write transactions like the examples we discussed, 
+phantoms can lead to particularly tricky cases of write skew.  
+
 #### Materializing conflicts
+
+_materializing conflicts_: it takes a phantom and turns it into a lock conflict on a concrete set of rows that exists in the database
+
+Unfortunately, it can be hard and error-prone to figure out how to materialize conflicts, 
+and it's ugly to let a concurrency control mechanism leak into the application data model.  
+For those reasons, materializing conflicts should be considered a last resort if no alternative is possible.  
+A serializable isolation level is much preferable in most cases.  
 
 ## Serializability
 
