@@ -483,12 +483,61 @@ Index-range locks does not lock all the objects, but the object with same index.
 
 ### Serializable Snapshot Isolation (SSI)
 
+_Serializable Snapshot Isolation_ provides full serializability, 
+but has only a small performance penalty compared to snapshot isolation.  
+
+It was first described in 2008.  
+Today SSI is used both in single-node databases and distributed databases.  
+
 #### Pessimistic versus optimistic concurrency control 
+
+**Pessimistic Concurrency Control Mechanism**
+
+- two-phase locking
+- if anything might go wrong, it's better to wait until the situation is safe again before doing anything
+- it's like _mutual exclusion_
+
+**Optimistic Concurrency Control Mechanism**
+
+- serializable snapshot isolation
+- If something potentially dangerous happens, transactions continue anyway, in the hope that everything will turn out all right
+- If the system is already close to its maximum throughput, the additional transaction load can make performance worse.  
+- However, if there is enough spare capacity, and if contention transactions is not too high, tend to perform better than pessimistic ones.  
+- On top of snapshot isolation, SSI adds an algorithms for detecting serialization conflicts 
 
 #### Decisions based on an outdated premise
 
+In order to provide serializable isolation, 
+the database must detect situations in which a transaction may have acted on an outdated premise and abort the transaction.  
+
+There are two cases to consider:
+
+- Detecting reads of a stale MVCC object version
+- Detecting writes that affect prior reads
+
 #### Detecting stale MVCC reads
+
+To prevent this anomaly, the database needs to track when a transaction ignores another transaction’s writes due to MVCC visibility rules. 
+When the transaction wants to commit, the database checks whether any of the ignored writes have now been committed. 
+If so, the transaction must be aborted.
+By avoiding unnecessary aborts(do not abort read-only transaction), 
 
 #### Detecting writes that affect prior reads
 
+SSI preserves snapshot isolation’s support for long-running reads from a consistent snapshot.
+When a transaction writes to the database, it must look in the indexes for any other transactions that have recently read the affected data.  
+
 #### Performance of serializable snapshot isolation
+
+If the database keeps track of each transaction’s activity in great detail, it can be precise about which transactions need to abort.  
+Less detailed tracking is faster, but may lead to more transactions being aborted than strictly necessary.
+
+**Advantage**
+
+- one transaction doesn’t need to block waiting for locks held by another transaction
+- much more predictable and less variable query latency 
+- not limited to the throughput of a single CPU core
+   - FoundationDB distributes the detection of serialization conflicts across multiple machines
+   
+The rate of aborts significantly affects the overall performance of SSI.  
+However, SSI is probably less sensitive to slow transactions than two-phase locking or serial execution.  
