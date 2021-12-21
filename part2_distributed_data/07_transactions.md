@@ -361,6 +361,20 @@ A serializable isolation level is much preferable in most cases.
 
 ## Serializability
 
+Situations that need _serializable_ isolation:  
+
+- Isolations levels are hard to understand, and inconsistently implemented in different databases
+- You might not be aware of all the things that may be happening concurrently
+- There are no good tools to help us detect race condition 
+
+Serializable isolation is usually regarded as the strongest isolation level.  
+But, if serializable isolation is so much better than the mess of weak isolation levels, then why isn't everyone using it?
+Most databases that provide serializability today use one of three techniques:
+
+1. Literally executing transactions in a serial order
+2. Two-phase locking
+3. Optimistic concurrency control techniques such as serializable snapshot isolation
+
 ### Actual Serial Execution
 
 #### Encapsulating transactions in stored procedures
