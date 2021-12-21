@@ -377,23 +377,109 @@ Most databases that provide serializability today use one of three techniques:
 
 ### Actual Serial Execution
 
+The simplest way of avoiding concurrency problems is to remove the concurrency entirely:  
+to execute only one transaction at a time, in serial order, on a single thread.  
+Two developments caused changes in thinking to make single-threaded execution:  
+
+1. RAM became cheap enough that for many use cases is now feasible to keep the entire active dataset in memory
+2. Database designers realized that OLTP transactions are usually short and only make a few reads and writes
+
+This is implemented in VoltDB/H-store, Redis, and Datomic.  
+However, its throughput is limited to a single CPU core.  
+In order to make the most of that single thread, transactions need to be structured differently from their traditional form.  
+
 #### Encapsulating transactions in stored procedures
+
+Systems with single-threaded serial transaction processing don't allow interactive multi-statement transactions.  
+Instead, the application must submit the entire transaction code to the database ahead of time, as a _stored procedures_.  
+The stored procedure can execute very fast, without waiting for any network or disk I/O.  
+
+![05_stored_procedure](../resources/part2/05_stored_procedure.png)
 
 #### Pros and cons of stored procedures
 
+**Cons about the concept of stored procedures**
+
+- Each database vendor has its own language for stored procedures, lack the ecosystem of libraries
+- Code running in a database is difficult to manage
+- A database is performance-sensitive than an application server, so it can cause much more trouble
+
+**Overcomes**
+
+- Modern implementations of stored procedures have abandoned PL/SQL and use existing general-purpose programming languages instead 
+  (VoltDB-Java or Groovy, Datomic-Java or Clojure, Redis-Lua)
+- With stored procedures and in-memory data, executing all transactions on a single thread becomes feasible
+
+Plus, in VoltDB case, it executes the same stored procedure on each replica, so it is _deterministic_.  
+
 #### Partitioning
+
+For applications with high write throughput, the single-threaded transaction processor can become a serious bottleneck.  
+So, if you find a way of partitioning your data, each partition can have its own transaction processing thread running independently from the others.  
+However, cross-partition transactions have additional coordination overhead, 
+so they are vastly slower than single-partition transactions.  
 
 #### Summary of serial execution
 
+- Every transaction must be small and fast, because it takes only one slow transac‐ tion to stall all transaction processing.
+- It is limited to use cases where the active dataset can fit in memory. Rarely accessed data could potentially be moved to disk, but if it needed to be accessed in a single-threaded transaction, the system would get very slow.x
+- Write throughput must be low enough to be handled on a single CPU core, or else transactions need to be partitioned without requiring cross-partition coordi‐ nation.
+- Cross-partition transactions are possible, but there is a hard limit to the extent to which they can be used.
+
 ### Two Phase Locking (2PL)
+
+Two-phase locking is similar to prevent dirty writes, but makes the lock requirements much stronger.  
+With transaction A and B(one for write, one for read on same object), each transaction must wait the other transaction.  
+In 2PL, writers don't just block other writers, they also block readers and vice versa.  
+Also, because 2PL provides serializability, it protects against all the race conditions including lost updates and write skew.  
 
 #### Implementation of two-phase locking 
 
+Used by serializable isolation level in MySQL (InnoDB) and SQL Server and the repeatable read isolation in DB2.  
+The lock can either be _shared mode_ or in _exclusive mode_.  
+
+- If a transaction wants to read an object, it must acquire the lock in shared mode.
+- If a transaction wants to write an object, it must acquire the lock in exclusive mode.
+- If a transaction reads and writes, it may upgrade it shared lock to an exclusive lock.  
+- After a transaction has acquired the lock, it must hold the lock until the end of the transaction. 
+
+However, it can cause _deadlock_ due to many locks.  
+The database automatically detects deadlocks between transactions and aborts 
+and the aborted transaction need to be retired by the application.  
+
 #### Performance of two-phase locking
+
+Big downside of two-phase locking is performance:  
+transaction throughput and response times of queries are significantly worse than weak isolation.  
+- overhead of acquiring and releasing all the locks, but more importantly reduced concurrency
+Also, when a transaction is aborted due to deadlock and is retired, it need to do its work all over again.  
+If deadlocks are frequent, this can mean significant wasted effort.    
 
 #### Predicate locks
 
+_Predicate lock_ works similarly to the shared/exclusive lock described earlier, 
+but rather than belonging to a particular object, it belongs to all object that match some search condition.  
+
+Predicate lock applies even to object that do not yet exist in the database.  
+If two-phase locking includes predicate locks, the database prevents all forms of write skew and other race conditions, 
+and so its isolation become serializable.  
+
 #### Index-range locks
+
+Predicate locks do not perform well - checking for matching is time-consuming.  
+For that reason, most databases with 2PL actually implement _index-range locking_(_next-key locking_).  
+
+Approximation of the search condition is attached to one of the indexes.  
+Index-range locks does not lock all the objects, but the object with same index.  
+
+**pros of index-range locks**
+
+- effective protection against phantoms and write skew
+  
+**cons of index-range locks**
+
+- not as precise as predicate locks would be
+- if there is no suitable index, the database can fall back to a shared lock  on the entire table which is not good for performance
 
 ### Serializable Snapshot Isolation (SSI)
 
