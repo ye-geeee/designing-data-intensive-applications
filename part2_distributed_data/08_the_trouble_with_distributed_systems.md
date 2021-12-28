@@ -33,6 +33,27 @@ The difficulty of partial failures are _nondeterministic_ - it may sometimes wor
 
 ### Cloud Computing and Supercomputing
 
+Two philosophies on how to build large-scale computing systems:
+
+- _high-performance computing_(HPC) - Super computers with thousands of CPUs, works like a single-node
+- _cloud computing_ - multi-tenant datacenters, commodity computers connected with an IP network, elastic/on-demand resource allocation, and metered billing
+
+**Implementing internet systems** compare to supercomputers:
+
+- _online_: they need to be able to serve users with low latency at any time. Making the service unavailable is not accepted. 
+- Provide equivalent performance as supercomputers at lower cost to due to economies of scale, but also have higher failure rates.
+  - supercomputers: specialized hardware, each node quite reliable, nodes communicate through shared memory and remote memory access(RDMA)
+- Based on IP and Ethernet, arranged int Clostopologies to provide high bisection bandwidth.
+  - supercomputers: use specialized network topologies such as multi-dimensional meshes and toruses
+- The bigger a system gets, the more likely it is that one of its components is broken.
+- If the system can tolerate failed nodes and still keep working as a whole, that is a very useful feature for operations and maintenance.  
+
+If we want to make distributed systems, work, we must accept the possibility of partial failure 
+and build fault-tolerance mechanisms into the software.  
+Thus, we need to build a reliable system from unreliable components.  
+It is important to consider a wide range of possible faults.  
+In distributed systems, suspicion, pessimism, and paranoia pay off.  
+
 ### Building a Reliable System from Unreliable Components
 
 ## Unreliable Networks
