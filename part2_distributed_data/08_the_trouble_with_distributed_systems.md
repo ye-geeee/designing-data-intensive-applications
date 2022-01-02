@@ -56,6 +56,17 @@ In distributed systems, suspicion, pessimism, and paranoia pay off.
 
 ### Building a Reliable System from Unreliable Components
 
+Although the system can be more reliable than its underlying parts,  
+there is always a limit to how much more reliable it can be.  
+
+- Error-correcting allow digital data to be transmitted accurately across a communication channel(radio interference), 
+  but can only deal with a small number of single-bits.  
+- TCP provides a more reliable transport layer. It can hide packet loss, duplication, and reordering from you, 
+  but cannot magically remove delays in network.
+
+Although the more reliable higher-level system is not perfect,  
+it's still useful because it takes care of the tricky low-level faults.  
+
 ## Unreliable Networks
 
 ### Network Faults in Practice
