@@ -300,6 +300,36 @@ and to restart processes periodically, before they accumulate enough long-lived 
 
 ### The Truth Is Defined by the Majority
 
+Many distributed algorithms rely on a _quorum_, that is, voting among the nodes:  
+decisions require some minimum number of votes from several nodes in order to reduce the dependence on any one particular node.
+A majority quorum allows the system to continue working if individual nodes have failed.  
+
+#### The leader and the lock 
+
+Frequently, a system requires there to be only one of some thing:
+
+- Only one node is allowed to be leader
+- Only one transaction or client is allowed to hold the lock
+- Only one user is allowed to register a particular username
+
+Implementing this in a distributed system requires care:  
+even if a node believes that it is "the chosen one", that doesn't necessarily mean a quorum of nodes agrees!
+
+If a node continues acting as the chosen one, it could cause probles in a system that is not carefully designed.  
+Following is sample of this issue:  
+
+![06_problems_when_a_node_think_it_is_the_chosen_one](../resources/part2/06_problems_when_a_node_think_it_is_the_chosen_one.png)
+
+#### Fencing tokens
+
+Let's assume that every time the lock server grants a lock or lease,  
+it also returns a _fencing token_, which is a number that increases every time a lock is granted.  
+
+Note that this mechanism requires the resource itself to take an active role in checking tokens 
+by rejecting any writes with an order token.  
+
+![07_use_token_for_the_chosen_one](../resources/part2/07_use_token_for_the_chosen_one.png)
+
 ### Byzantine Faults
 
 ### System Model and Reality
