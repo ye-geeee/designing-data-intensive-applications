@@ -105,6 +105,22 @@ However, you do need to know how your software reacts to network problems and en
 
 ### Detecting Faults
 
+Many systems need to automatically detect faulty nodes.
+
+- A load balancer needs to stop sending requests to a node that is dead
+- In a distributed database with single-leader replication, if the leader fails, one of the followers needs to be promoted to be the new leader
+
+Followings are some specific circumstances you might get some feedback:
+
+- TCP - If there is no process is listening on the destination port, the OS will helpfully close or refuse TCP connections by sending RST or FIN.
+- HBase - If a node process is crashed, a script can notify other nodes about the crash so that another node can take over quickly without having to wait for a timeout to expire.
+- If you have access to the management interface of the network switches, you can query them to detect link failures at a hardware level.
+- Router - If an IP address you're trying to connect to is unreachable, the router reply to you with an ICMP Destination Unreachable packet.
+
+If something has gone wrong, you may get an error response at some level of the stack,  
+but in general you have to assume that you will get no response at all.  
+you can retry a few times, wait for timeout to elapse, and eventually declare the node dead.
+
 ### Timeouts and Unbounded Delays
 
 ### Synchronous Versus Asynchronous Networks
