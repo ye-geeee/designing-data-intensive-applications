@@ -335,3 +335,15 @@ by rejecting any writes with an order token.
 _Byzantine fault_: a node may claim to have received a particular message when in fact it didn't("lie").
 
 ### System Model and Reality
+
+Three system models in common use with regarding to timing assumptions: 
+
+- _Synchronous model_
+- _Partially synchronous model_
+- _Asynchronous model_
+
+Three most common system models for nodes are:  
+
+- _Crash-stop faults_
+- _Crash-recovery faults_
+- _Byzantine(arbitrary) faults_
