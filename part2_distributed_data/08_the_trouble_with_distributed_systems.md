@@ -67,6 +67,8 @@ there is always a limit to how much more reliable it can be.
 Although the more reliable higher-level system is not perfect,  
 it's still useful because it takes care of the tricky low-level faults.  
 
+<br/>
+
 ## Unreliable Networks
 
 Share-nothing has become the dominant approach for building internet services, for several reasons:
@@ -173,6 +175,8 @@ it is possible to emulate circuit switching on packet networks, or provide stati
 However, currently it is not enabled in multi-datacenters and clouds.  
 We have to assume that network congestion, queueing, and unbounded delays will happen.  
 
+<br/>
+
 ## Unreliable Clocks
 
 In a distributed system, time is a tricky business, because communication is not instantaneous:  
@@ -220,7 +224,53 @@ Plus, such accuracy can be achieved using GPS receivers, the Precision Time Prot
 
 ### Relying on Synchronized Clocks
 
+Although clocks work quite well most of the time,  
+robust software needs to be prepared to deal with incorrect clocks.  
+
+If a machine's CPU is defective or its network is misconfigured, it will be quickly be noticed and fixed.  
+However, if NTP client is misconfigured, clock gradually drifts further away from reality.  
+
+Thus, if you use software that requires clocks to be synchronized, it is essential that you also carefully monitor the clock offsets between all the machines.  
+Such monitoring ensures you before they can cause too much damage.  
+
+#### Timestamps for ordering events
+
+In both multi-leader replication and leaderless databases such as Cassandra, 
+conflict resolution strategy called _last write wins_(LWW) is widely used.  
+However, even though it is tempting to resolve conflicts by keeping the most "recent" value and discarding other, 
+it's important to be aware that the definition of "recent" depends on a local time-of-day clock, which may waell be incorrect.  
+
+So-called _logical clocks_, which are based on incrementing counters rather than an oscillating qurtz crystal, 
+are a safer alternative for orering events.  
+
+#### Clock readings have a confidence interval
+
+It doesn't make sense to think of a clock reading as a point in time  
+- it is more like a range of times, within a confidence interval.  
+
+The uncertainty bound can be calculated based on your time source.  
+If you have a GPS receiver or atomic (caesium) clock directly attached to your computer, 
+the expected error range is reposted by the manufacturer.  
+
+Unfortunately, most systems don't expose this uncertainty.  
+An interesting exception in Google's _TrueTime_ API in Spanner, 
+it explicitly reports the confidence interval_[earliest, latest]_ on the local clock.  
+
+#### Synchronized clocks for global snapshots
+
+If we could get the synchronization good enough,  
+we can use timestamps from synchronized time-of-day clocks as transaction IDs.  
+However, the problem, of course, is the uncertainty about clock accuracy.  
+
+In case of Spanner,  
+it uses the clock's confidence interval as reported by the TrueTime API.  
+In order to ensure that transaction timestamps reflect causality, 
+Spanner deliberately waits for the length of the confidence interval before committing a read-write transaction.  
+In order to keep the wait time as short as possible, Spanner needs to keep the clock uncertainty as small as possible.  
+
 ### Process Pauses
+
+<br/>
 
 ## Knowledge, Truth, and Lies
 
