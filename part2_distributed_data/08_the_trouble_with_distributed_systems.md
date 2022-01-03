@@ -183,6 +183,29 @@ It is possible to synchronize clocks to some degree: the most commonly used mech
 
 ### Monotonic Versus Time of Day Clocks
 
+Modern computers have at least two different kinds of clocks:  
+a _time-of-day clock_ and a _monotonic clock_.  
+They serve different purposes.  
+
+#### Time-of-day clocks
+
+- returns the current data and time according to some calendar
+- usually synchronized with NTP
+
+#### Monotonic clocks
+
+- suitable for measuring a duration
+- check the difference between the start time and end time
+- _absolute_ value of the clock is meaningless
+
+On a server sith multiple CPU sockets, there may be a separate timer per CPU.  
+OS compensates for discrepancy and try to present a monotonic view of the clock to application threads, 
+even they are scheduled across different CPUs.  
+
+If it detects that the computer's local quartz is moving faster or slower than the NTP server,  
+NTP allows the clock rate to be speed up or slowed down by up to 0.05%,  
+but NTP cannot cause the monotonic clock to jump forward or backward.
+
 ### Clock Synchronization and Accuracy
 
 ### Relying on Synchronized Clocks
