@@ -206,7 +206,17 @@ If it detects that the computer's local quartz is moving faster or slower than t
 NTP allows the clock rate to be speed up or slowed down by up to 0.05%,  
 but NTP cannot cause the monotonic clock to jump forward or backward.
 
+In a distributed system, 
+using a monotonic clock is usually fine, because it doesn't assume any synchronization between 
+different nodes' clocks and is not sensitive to slight inaccuracies of measurement.  
+
 ### Clock Synchronization and Accuracy
+
+Monotonic clocks don't need synchronization, but time-of-day clocks need to be set according to NTP server or otehr external time source in order to be useful.  
+Unfortunately, our methods aren't nearly as reliable or accurate as you might hope(Skip example...)
+
+It is possible to achieve good clock accuracy if you care about it sufficiently to invest significant resources.  
+Plus, such accuracy can be achieved using GPS receivers, the Precision Time Protocol(PTP), and careful deployment and monitoring.  
 
 ### Relying on Synchronized Clocks
 
