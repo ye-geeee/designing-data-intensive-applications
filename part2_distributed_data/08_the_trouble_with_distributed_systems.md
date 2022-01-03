@@ -332,4 +332,6 @@ by rejecting any writes with an order token.
 
 ### Byzantine Faults
 
+_Byzantine fault_: a node may claim to have received a particular message when in fact it didn't("lie").
+
 ### System Model and Reality
