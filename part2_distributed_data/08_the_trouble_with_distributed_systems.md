@@ -90,6 +90,19 @@ However, when a timeout occurs, you still don't know whether the remote node got
 
 ### Network Faults in Practice
 
+Many systematic studies show that network problems can be surprisingly common.  
+Public cloud services such as EC2 are notorious for having frequent transient network glitches.  
+Surprisingly, faults include a network interface that sometimes drops all inbound packets but sends outbound packets successfully:  
+just because a network link works in one direction doesn't guarantee it's also working in the opposite direction.  
+
+Faults _can_ occur means that your software needs to be able to handle them.  
+If the error handling of network faults is not defined and tested, the cluster could become deadlocked and permanently unable to serve requests, 
+even when the network recovers.  
+
+Handling network faults doesn't necessarily mean _tolerating_ them.  
+The simple way could be to show error message to users while your network is experiencing problems.  
+However, you do need to know how your software reacts to network problems and ensure that the system can recover from them.  
+
 ### Detecting Faults
 
 ### Timeouts and Unbounded Delays
