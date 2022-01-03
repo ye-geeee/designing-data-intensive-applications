@@ -175,6 +175,12 @@ We have to assume that network congestion, queueing, and unbounded delays will h
 
 ## Unreliable Clocks
 
+In a distributed system, time is a tricky business, because communication is not instantaneous:  
+it takes time for a message to travel across the network from on machine to another.  
+
+Moreover, each machine on the network has its own clock, which is an actual hardware device: usually a quartz crystal ocillator.  
+It is possible to synchronize clocks to some degree: the most commonly used mechanism is the Network Time Protocol(NTP).  
+
 ### Monotonic Versus Time of Day Clocks
 
 ### Clock Synchronization and Accuracy
