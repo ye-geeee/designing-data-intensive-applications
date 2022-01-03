@@ -123,7 +123,55 @@ you can retry a few times, wait for timeout to elapse, and eventually declare th
 
 ### Timeouts and Unbounded Delays
 
+If a timeout is the only sure way of detecting a fault, then how long should the timeout be?  
+There is unfortunately no simple answer.  
+
+Unfortunately, most asynchronous networks have _unbounded delays_,  
+and most server implementations cannot guarantee that they can handle requests withing some maximum time.  
+
+#### Network congestion and queueing
+
+The variability of packet delays on computer networks is most often due to queueing:
+
+- several nodes simultaneously try to send packets to the same destination
+- a packet reaches the destination machine, but all CPU cores are currently busy
+- virtualized environments - os is often paused while another virtual machine uses a CPU core
+- TCP performs _flow control(congestion avoidance, backpressure_. 
+  TCP considers a packet is lost if there is no act within some timeout, and lost packets are automatically retransmitted. 
+
++ Batch workloads such as MapReduce can easily saturate network links.  
+
+In such environments, you can only choose timeouts experimentally:  
+measure the distribution of network round-trip times over an extended period, and over many machines, to determine the expected variability of delays.  
+Even better, systems can continually measure response times and their variability(_jitter_), 
+and automatically adjust timeouts according to the observed response time distribution.  
+
 ### Synchronous Versus Asynchronous Networks
+
+#### Synchronous Network
+
+- does not suffer from queueing
+- maximum end-to-end latency of the network is fixed - _bounded delay_
+
+#### Can we not simply make network delays predictable?
+
+In case of circuit in a telephone, there is a fixed amount of reserved bandwidth which nobody can use.  
+How about to give TCP a variable-sized block of data?  
+If datacenter networks were circuit-switched networks, it would be possible to establish a guaranteed maximum round-trip time.  
+However, Ethernet and IP the packet-switched protocols do not have the concept of circuit.  
+
+Why do datacenter networks use packet switching?  
+It's because to optimize _bursty traffic_.  
+Requesting a web page, sending an email, or transferring a file doesn't have any particular bandwidth requirement 
+- we just want it to complete as quickly as possible.  
+
+Using circuits for bursty data transfers wastes network capacity and makes transfers unnecessarily slow.  
+By contrast, TCP dynamically adapts the rate of data transfer to the available network capacity.  
+
+With careful use of _quality of service_(QoS) and _admission control_, 
+it is possible to emulate circuit switching on packet networks, or provide statistically bounded delay.  
+However, currently it is not enabled in multi-datacenters and clouds.  
+We have to assume that network congestion, queueing, and unbounded delays will happen.  
 
 ## Unreliable Clocks
 
