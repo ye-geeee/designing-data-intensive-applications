@@ -69,6 +69,25 @@ it's still useful because it takes care of the tricky low-level faults.
 
 ## Unreliable Networks
 
+Share-nothing has become the dominant approach for building internet services, for several reasons:
+
+- comparatively cheap because it requires no special hardware
+- high reliability through redundancy across multiple geographically distributed datacenters
+
+The internet and most internal networks are _asynchronous packet networks_.  
+Therefore, there are many things that could go wrong.
+
+1. Your request lost
+2. Your request in queue and delivered later
+3. Remote node failed
+4. Remote node temporarily stopped responding(ex. experiencing a long garbage collection pause) and responds later
+5. Remote node have processed your request, but response lost
+6. Remote node have processed your request, but response has been delayed
+
+If you send a request to another node and don't receive response, it is _impossible_ to tell why.  
+The usual way of handling this issue is a _timeout_.  
+However, when a timeout occurs, you still don't know whether the remote node got your request or not.  
+
 ### Network Faults in Practice
 
 ### Detecting Faults
