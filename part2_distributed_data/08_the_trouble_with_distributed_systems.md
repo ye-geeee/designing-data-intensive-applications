@@ -270,6 +270,30 @@ In order to keep the wait time as short as possible, Spanner needs to keep the c
 
 ### Process Pauses
 
+A node in a distributed system must assume that its execution can be paused for a significant length of time at any point.  
+During the pause, the rest of the world keeps moving and may even declare the paused node dead because it's not responding.  
+Eventually, the paused node may continue running, withoug even noticing that it was aleep until it checks its clock sometime later.  
+
+#### Response time guarantees
+
+_hard real-time_ systems:  specify _deadline_ by which the software must respond
+If it doesn't meet the deadline, that may cause a failure of the entire system.  
+
+Providing real-time guarantees in a system requires support from all levels of the software stack: a _real-time operating system_ (RTOS)  
+All of this requires a large amount of additional work and severely restricts the range of programming languages, libraries, and tools can be used.  
+Therefore, it is very expensive, and most commonly used in safety-critical embedded devices.  
+
+For most server-side data processing systems, real-time guarantees are simply not economical or appropriate.  
+Consequently, there systems must suffer the pauses and clock instability that come from operating in a non-real-time environment.  
+
+#### Limiting the impact of garbage collection
+
+To treat GC pauses, let other nodes handle request from clients while one node is collecting its garbage.  
+This trick hides GC pauses from clients and reduces the high percentiles of response time.  
+
+A variant of this idea is to use the garbage collector only for short-lived objects 
+and to restart processes periodically, before they accumulate enough long-lived objects to require a full GC of long-lived objecs.  
+
 <br/>
 
 ## Knowledge, Truth, and Lies
