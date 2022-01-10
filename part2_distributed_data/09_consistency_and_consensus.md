@@ -34,6 +34,14 @@ In this chapter, we will explore stronger consistency models that data systems m
 
 ## Linearizability
 
+In an eventually consistent database, if you ask two different replicas the same question at the same time, you may get two different answers.  
+Wouldn't it be a lot simpler if the database could give the illusion that there is only one replica?
+
+This is the idea behind _linearizability(= atomic consistency, strong consistency, immediate consistency, external consistency)_:  
+a system appear as if there were only one copy of the data.  
+With this guarantee, even though there may be multiple replicas in reality, the application does not need to worry about them.  
+In other words, linearizability is a _recency guarantee_.  
+
 ### What Makes a System Linearizable?
 
 ### Relying on Linearizabilty
