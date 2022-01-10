@@ -80,6 +80,34 @@ and thus reads from the snapshot are not linearizable.
 
 ### Relying on Linearizabilty
 
+There is a few areas in which linearizability is an important requirement for making a system work correctly.  
+
+#### Locking and leader election
+
+A system that uses single-leader replication needs to ensure that there is indeed only one leader, not several(split brain).  
+Apache ZooKeeper, etcd are often used to implement distributed locks and leader election.  
+A linearizable storage service is the basic foundation for these coordination tasks(they use details using libraries like Apache Curator).  
+Also, Oracle Real Application Clusters(RAC) uses a lock per disk page, with multiple nodes sharing access to the same disk storage system.
+
+#### Constraints and uniqueness guarantees
+
+If you want to enforce contraints and uniqueness guarantees as the data is written, you need linearizabilty.  
+For example, a username or email address must uniquely identify one user, bank account balance never goes negative.  
+
+Other kinds of constraints, such as foreign key or attribute constraints, can be implemented without requiring linearizability.  
+
+#### Cross-channel timing dependencies
+
+The linearizabiltiy violation was only noticed because there was an additional communication channel in the system.  
+
+![11_cross_channel_communication_example](../resources/part2/11_cross_channel_communication_example.png)
+
+There is a risk of a race condition:  
+the message queue might be faster than the internal replication inside the storage service.  
+When the resizer fetches the image, it might see an old version of the image.  
+
+This problem arises because there are two different communication channels between the web server and the resizer: the file storage and message queue.
+
 ### Implementing Linearizable Systems
 
 ### The Cost of Linearizability
