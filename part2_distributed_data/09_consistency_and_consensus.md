@@ -110,6 +110,40 @@ This problem arises because there are two different communication channels betwe
 
 ### Implementing Linearizable Systems
 
+The most common approach to making a system fault-tolerant is to use replication.  
+Let's check replication methods, and compare whether they can be made linearizable:  
+
+- _Single-leader replication (potentially linearizable)_
+  - If you make reads from the leader, or from synchronously updated followers, they have the _potential_ to be linearizzable.  
+  - However, not every single-leader database is actually linearizable, either by design or due to concurrency bugs.
+  - Also, you have to know for sure who the leader is.
+  - With asynchronous replication, failoever may even lose commited writes, which violates both durability and linearizability.  
+- _Consensus algorithms (linearizable)_
+  - They can bear a resembalance to single-leader replication with measures to prevent split brain and stale replicas.
+  - Zookeeper, etcd
+- _Multi-leader replication (not linearizable)_
+  - They concurrently process writes on multiple nodes and asynchronously replicate them to other nodes.
+  - Therefore, they can produce conflicting writes.  
+- _Leaderless replication (probably not linearizable)_  
+  - They depend on how you define strong consistency. However, it is not quite true.
+  - Conflict resolution based on time-of-day clocks in Cassandra, are nonlinearizable, because clock timestamps cannot be guaranteed.
+  - Sloppy quorums also ruin any chance of lineariability.
+
+#### Linearizability and quorums
+
+It seems as though strict quorum reads and writes should be linearizable.  
+However, when we have variable network delays, it is possible to have race conditions.  
+
+Interestingly, it is possible to make Dynamo-style quorums linearizable at the cost of reduced performance;  
+a reader must perform read repair, and a writer must read the latest state of a quorum of nodes before sending its writes.  
+
+However, Riak does not perform synchronous read repair due to the performance penalty.  
+Cassandra does wait for read repair to complete on quo‐ rum reads, 
+but it loses linearizability if there are multiple concurrent writes to the same key, 
+due to its use of last-write-wins conflict resolution.
+
+Therefore, it is safest to assume that a leaderless system with Dynamo-style replication does not provide linearizability.  
+
 ### The Cost of Linearizability
 
 <br/>
