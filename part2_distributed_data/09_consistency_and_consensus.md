@@ -44,6 +44,40 @@ In other words, linearizability is a _recency guarantee_.
 
 ### What Makes a System Linearizable?
 
+**Not fully linearlizable Example**
+
+![08_non-linearlizable_example](../resources/part2/08_non-linearlizable_example.png)
+
+Any read operations that overlap in time with operation might return either 0 or 1.  
+There operations are _concurrent_ with the write.  
+However, this is not yet sufficient to fully describe linearizability:  
+if reads that are concurrent with a write can return either the old or the new value.  
+
+**Linearizable Example 1**
+
+![09_linearlizable_example](../resources/part2/09_linearlizable_example.png)
+
+If one client's read returns the new value, all subsequent reads must also return the new value, even if the write operation has not yet completed.  
+
+**Linearlizable Example 2**
+
+![10_linearlizable_example2](../resources/part2/10_linearlizable_example2.png)
+
+#### Linearizability Versus Serializability
+
+**Linearlizability**: 
+recency guarantee on reads and writes of a register
+
+**Serializability**:  
+an isolation property of _transactions_, where every transaction may read and write multiple objects
+
+A database may provide both serializability and linearlizability, and this combination is knows as _strict serializability_ or _strong one-copy serializability_.  
+Implementations of serializability based on two-phase locking or actual serial execution are typically linearizable.  
+
+However, serializable snapshot isolation is not linearizable;  
+the whole point of a consistent snapshot is that it does not include writes that are most recent that the snapshot,  
+and thus reads from the snapshot are not linearizable.  
+
 ### Relying on Linearizabilty
 
 ### Implementing Linearizable Systems
