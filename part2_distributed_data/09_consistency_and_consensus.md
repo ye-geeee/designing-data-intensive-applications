@@ -23,6 +23,13 @@ Also, we will get an overview of what is and isn't possible and those fundamenta
 
 ## Consistency Guarantees
 
+Most replicated databases provide at least _eventual consistency_(also called as _convergence_):  
+stop writing to the database and wait for some unspecified length of time, and eventually all read requests will return the same value.  
+However, this is weak guarantee - it doesn't say anything about _when_ the replicas will converge.  
+
+When working with a database that provides only weak guarantees, you need to be constantly aware of its limitations and bugs are subtle and hard to find by testing.  
+In this chapter, we will explore stronger consistency models that data systems may choose to provide, but have worse performance or be less fault-tolerant that the systems with weawker guarantees.
+
 <br/>
 
 ## Linearizability
