@@ -189,4 +189,35 @@ so this trade-off is important for latency-sensitive systems.
 
 ### Ordering and Causality
 
+There are several reasons why ordering keeps coming up, and one of the reasons is that it helps preserve _causality_.  
+Causality imposes an ordering on events: cause some before effect; a message is sent before that message is received; 
+the question comes before the answer.  
+If a system obeys the ordering imposed by causality, we say that it is _causally consistent_.  
+
+#### The causal order is not a total order
+
+_total order_: allows any two elements to be compared  
+  - _Linearizability_: every operation is atomic
+_partially ordered_: in some cases one set is greater than another, but in other cases they are incomparable.  
+  - _Causality_: two events are ordered if they are causally related, but they are incomparable if they are concurrent.  
+
+Therefore, according to this definition, there are no concurrent operations in a linearizable datastore:  
+there must be a single timeline along which all operations are totally ordered.  
+
+#### Linearizability is stronger that causal consistency
+
+The linearizability _implies_ causality: any system that is linearizable will preserve causality correctly.  
+Making a system linearizable can harm its performance and availability, 
+so some distributed data systems abandoned linearizability to achieve better performance.  
+
+The good news is that a middle ground is possible.  
+In many cases, systems that appear to require linearizability in fact only really require causal consistency, 
+which can be implemented more efficiently.
+
+#### Capturing causal dependencies
+
+In order to maintain causality, you need to know which operation _happened before_ which other operation.  
+In order to determine causal dependencies, we need some way of describing the "knowledge" of a node in the system(similar to detecting concurrent writes).  
+In order to determine causal ordering, the databases needs to know which version of the data was read by the application.  
+
 ### Sequence Number Ordering
