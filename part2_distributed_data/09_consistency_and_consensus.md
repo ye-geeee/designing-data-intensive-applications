@@ -146,6 +146,43 @@ Therefore, it is safest to assume that a leaderless system with Dynamo-style rep
 
 ### The Cost of Linearizability
 
+Let's consider what happens if there is a network interruption between the two datacenters.  
+With a multi-leader database, each datacenter can continue operating normally,  
+but if a single-leader replication is used, the leader must be in one of the datacenters.  
+
+If the application requires linearizable reads and writes, 
+the network interruption causes the application to become unavailable in the datacenters that cannot contact the leader.  
+
+#### The CAP theorem
+
+Any linearizable database has this problem, no matter how it is implemented.  
+The issue also isn't specific to multi-datacenter deployments, but can occur on any unreliable network, even within one datacenter.  
+The trade-off is as follows:
+
+- If your application _requires_ linearizability, they must wait until the network problem is fixed, or return an error.  
+- If your application _does not require_ linearizability, the application can remain _available_ in the face of a network problem, but its behavior is not linearizable.  
+
+Thus, applications that don't require linearizability can be more tolerant of network problems.  
+This insight is popular known as the _CAP theorem_.  
+
+At the time, CAP encouraged database engineers to explore a wider design space of distributed shared-nothing systems, which is suitable for implementing large-scale web services.  
+CAP deserves credit for this culture shift-witness the explosion of new database technologies since the mid-2000s(known as NoSQL).  
+
+The CAP theorem as formally defined is of very narrow scope: consistency model(linearizability), kind of fault(network partitions).  
+Thus, although CAP has been historically influential, it has little value for designing systems.  
+
+#### Linearizability and network delays
+
+Although linearizability is a  useful guarantee, few systems are actually linearizable in practice.  
+Even RAM on a modern multi-core CPU is not linearizable.  
+If a thread running on one CPU core writes to a memory address, and a thread on another CPU core reads the same address shortly afterward, 
+it is not guaranteed to read the value written by the first thread(unless a _memory barrier_ or _fence_ is used).  
+
+The reason for dropping linearizability is _performance_, not fault tolerance.  
+Many distributed databases do so primarily to increase performance, not so much for fault tolerance.  
+A faster algorithm for linearizability does not exist, but weaker consistency models can be much faster, 
+so this trade-off is important for latency-sensitive systems.  
+
 <br/>
 
 ## Ordering Guarantees
