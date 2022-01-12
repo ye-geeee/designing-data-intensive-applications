@@ -221,3 +221,55 @@ In order to determine causal dependencies, we need some way of describing the "k
 In order to determine causal ordering, the databases needs to know which version of the data was read by the application.  
 
 ### Sequence Number Ordering
+
+In many applications, clients read lots of data before writing something.  
+Explicitly tracking all the data would mean a large overhead.  
+
+There is a better way: we can use _sequence numbers_ or _timestamps_ to other events.  
+In this case, we do not use problematic a time-of-day clock, we use _a logical clock_ instead.  
+
+Such sequence numbers or timestamps are compact, and they provide a _total order_.  
+With a single-leader replication, the replication log defines a total order of write operations that is consistent with causality.
+
+#### Noncausal sequence number generators
+
+If there is not a single leader, it is less clear how to generate sequence numbers for operations.
+There are some methods in practice, 
+and all perform better and are more scalable than pushing all operations through a single leader that increments a counter.  
+However, they all have problem: the sequence numbers they generate are _not consistent with causality_.  
+
+There are various methods in practice and problems:  
+
+1. Each node can generate its own independent set of sequence numbers. (for two nodes, one uses odd number and the other uses even number)
+  - problem: cannot accurately tell which one causally happened first
+2. You can attach timestamp from a time-of-day clock to each operation.  
+  - problem: clock skew
+3. You can preallocate blocks of sequence numbers(one for 1~1000, another for 1001~2000).
+  - problem: the sequence number is inconsistent with causality  
+
+#### Lamport timestamps
+
+There is a simple method for generating sequence numbers that is consistent with causality: _Lamport timestamp_
+
+![12_Lamport_timestamps](../resources/part2/12_Lamport_timestamps.png)
+
+Every node and every client keeps track of the _maximum_ counter value it has seen so far, 
+and includes that maximum on every request.  
+
+Lamport timestamps are sometimes confused with version vectors.  
+
+- version vectors: distinguish whether two operations are concurrent or whether one is causally dependent on the other
+- Lamport timestamps: enforce a total ordering
+
+#### Timestamp ordering is not sufficient
+
+Although Lamport timestamps define a total order of operations, they are not sufficient to solve many common problems in distributed systems.  
+You can compare the timestamps to determine the winner, 
+but it is not sufficient when a node has just received a request, and need to decide _right_ now whether the request should succeed or fail.  
+The node does not know whether another node is concurrently in the process of same operation, and what timestamp that other node may assign to the operation.  
+You would have to check with every other node to see what it is doing.  
+
+The problem here is that the total order of operations only emerges after you have collected all of the operations.  
+To conclude: in order to implement something like a uniqueness constraints for usernames, 
+it's not sufficient to have a total ordering of operations - you also need to know when that order si finalized.  
+
