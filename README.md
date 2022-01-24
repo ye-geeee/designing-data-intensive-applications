@@ -19,7 +19,7 @@
 |[6. Partitioning](part2_distributed_data/06_partitioning.md)| 21.11.17 |:white_check_mark:|
 |[7. Transactions](part2_distributed_data/07_transactions.md)| 21.12.22 |:white_check_mark:|
 |[8. The Trouble with Distributed Systems](part2_distributed_data/08_the_trouble_with_distributed_systems.md)| 22.01.03 |:white_check_mark:|
-|9. Consistency and Consensus| |:x:|
+|[9. Consistency and Consensus](part2_distributed_data/09_consistency_and_consensus.md)| 22.01.24 |:white_check_mark:|
 
 ## Part 3. Derived Data
 
