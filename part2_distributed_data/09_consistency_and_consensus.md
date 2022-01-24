@@ -409,15 +409,77 @@ For this reason, 2PC continues to be used, despite the known problem with coordi
 
 ### Distributed Transactions in Practice
 
+Two-phase commit have a mixed reputation:  
+
+- pros: providing an important safety guarantee
+- cons: causing operational problems, killing performance, promising more that they can deliver
+
+Many cloud services choose not to implement distributed transactions due to the operational problems they engender.  
+Much of the performance cost inherent in two-phase commit is due to the additional disk forcing(fsync) 
+that is required for crash recovery, and the additional network round-trips.  
+
+Two types of distributed transactions:  
+
+- _Database-internal distributed transactions_
+  - support internal transactions among the nodes of that database
+  - ex. VoldDB, MySQL Cluster's NDB stroage engine
+- _Heterogeneous distributed transactions_
+  - two databases from different vendors
+    
+Database-internal distributed transactions do not have to be compatible with any other system, so it can often work well.  
+On the other hand, transactions spanning heterogeneous technologies are a lot more challenging.  
+
 #### Exactly-once message processing
+
+Heterogeneous distributed transactions allow diverse systems to be integrated in powerful ways.  
+For example, a message from a message queue can be acknowledged as processed 
+if and only if the database transaction for processing the message was successfully committed. 
+This is implemented by atomically committing the message acknowledgment, and the database writes in a single transaction.  
+
+By atomically committing the message and the side effects of its processing, 
+we can ensure that the message is _effectively_ processed exactly once, even if it required a few retries before it succeeded.  
 
 #### XA transactions
 
+XA was introduced in 1991 and has been widely implemented:  
+traditional relational databases(PostgreSQL, MySQL, DB2, SQL Server, and Oracle) and message brokers(ActiveMQ, HornetQ, IBM MQ).  
+
+XA is not a network protocol - merely a C API for interfacing with a transaction coordinator.  
+If the driver supports XA, that means it calls the XA API to find out 
+whether an operation should be part of a distributed transaction - and if so, it sends the necessary information to the database server.   
+The driver also exposes callbacks through which the coordinator can ask the participant to prepare, commit, or abort.
+
 #### Holding locks while in doubt
+
+Database transactions usually take a row-level exclusive lock on any rows they modify, to prevent dirty writes.  
+In addition, if you want serializable isolation, a database using two-phase locking would also have to take a 
+shared lock on any rows _read_ by the transaction.  
+
+Other transactions cannot simply continue with their business.  
+This can cause large parts of your application to become unavailable until in-doubt transaction is resolved.  
 
 #### Recovering from coordinator failure
 
+In practice, _orphaned_ in-doubt transactions do occur - that is, 
+transactions for which the coordinator cannot decide the outcome for whatever reason.  
+These transactions cannot be resolved automatically, so they sit forever in the database, 
+holding locks and blocking other transactions.  
+
+The only way out is for an administrator to manually decide whether to commit or roll back the transactions.  
+Many XA implementations have an emergency escape hatch called _heuristic decisions_: 
+allowing a participant to unilaterally decide to abort or commit an in-doubt transaction 
+without a definitive decision from the coordinator.  
+
 #### Limitations of distributed transactions
+
+XA transactions solve the real and important problem of keeping several participant data systems consistent with each other.  
+However, they also introduce major operational problems:  
+transaction coordinator is itself a kind of database, so it needs to be approached with the same care as any other important database:  
+
+- Many coordinator implementations are not highly available by default, and have only rudimentary replication support.  
+- Many server-side applications are developed in a stateless model, but with coordinator, servers are no longer stateless.  
+- Since XA needs to be compatible with a wide range of data systems, it is necessarily a lowest common denominator.  
+- If _any_ part of the system is broken, the transaction also fails.
 
 ### Fault Tolerant Consensus
 
