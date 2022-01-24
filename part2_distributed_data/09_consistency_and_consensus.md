@@ -343,8 +343,97 @@ distributed systems can usually achieve consensus in practice.
 
 ### Atomic Commit and Two Phase Commit (2PC)
 
+Atomicity prevents failed transactions from littering the database with half-finished results and half-updated state.  
+This is especially important for multi-object transactions and databases that maintain secondary indexes.  
+Atomicity ensures that the secondary index stays consistent with the primary data.  
+
+#### From single-node to distributed atomic commit
+
+On a single node, transaction commitment crucially depends on the _order_ in which data is durably written to disk.  
+The key deciding moment is when the disk finishes writing the commit record.  
+Thus, it is a single device that makes the commit atomic.  
+
+However, what if multiple nodes are involved in a transaction?  
+It is not sufficient to simply send a commit request to all of the nodes and independently commit the transaction on each one.  
+In doing so, it could easily happen that the commit succeeds on some nodes and fails on other nodes(violation/conflict, lost, crash).  
+If some nodes commit the transaction but others abort it, the nodes become inconsistent with each other.
+
+#### Introduction to two-phase commit
+
+Two-phase commit is an algorithm for achieving atomic transaction commit across multiple nodes 
+to ensure that either all nodes commit or all nodes abort.  
+2PC is used internally in some databases and also made available to applications in the form of _XA transactions_.  
+
+![13_two_phase_commit](../resources/part2/13_two_phase_commit.png)
+
+2PC uses a new component: a _coordinator_ (also known as _transaction manager_).  
+We call database nodes _participants_.  
+
+- Phase 1. Coordinator sends a _prepare_ request to each of the nodes
+- Phase 2. Coordinator tracks the responses from the participants 
+    - if all participants reply "yes", the coordinator sends out a _commit_ request
+    - if any participants replies "no", the coordinator sends an _abort_ request
+
+#### A system of promises
+
+Why two-phase commit ensures atomicity, while one-phase commit across several nodes does not? What makes 2PC different?
+
+The protocol contains two crucial "points of no return":  
+when a participant votes "yes," it promises that it will definitely be able to commit later;  
+and once the coordinator decides, that decision is irrevocable.  
+
+#### Coordinator of failure
+
+If any of the prepare requests fail or time out, the coordinator aborts the transaction;  
+if any of the commit or abort requests fail, the coordinator retries them indefinitely.  
+However, what happens if the coordinator crashes?
+
+Once the participant has received a prepare request and voted "yes", 
+it can no longer abort unilaterally - it must wait to hear back from the coordinator whether the transaction was committed or aborted.  
+If the coordinator crashes or the network fails at this point, the participant can do nothing but wait(_in doubt_ or _uncertain_ state).  
+
+![14_coordinator_crashes](../resources/part2/14_coordinator_crashes.png)
+
+Without hearing from the coordinator, the participant has no way of knowing whether to commit or abort.  
+The only way 2PC can complete is by waiting for the coordinator to recover.  
+Thus, the commit point of 2PC comes down to a regular single-node atomic commit on the coordinator.  
+
+#### Three-phase commit
+
+Two-phase commit is called a _blocking_ atomic commit protocol because of the stuck waiting for the coordinator to recover.  
+In theory, it is possible to make an atomic commit protocol _nonblocking_, but this work in practice is not so straightforward.  
+
+As an alternative to 2PC, an algorithm called _three-phase commit_(3PC) has been proposed.  
+However, in general, nonblocking atomic commit requires a _perfect failure detector_ which costs time.  
+For this reason, 2PC continues to be used, despite the known problem with coordinator failure.  
+
 ### Distributed Transactions in Practice
+
+#### Exactly-once message processing
+
+#### XA transactions
+
+#### Holding locks while in doubt
+
+#### Recovering from coordinator failure
+
+#### Limitations of distributed transactions
 
 ### Fault Tolerant Consensus
 
+#### Consensus algorithms and total order broadcast
+
+#### Single-leader replication and consensus
+
+#### Epoch numbering and quorums
+
+#### Limitations of consensus
+
 ### Membership and Coordination Services
+
+#### Allocating work to nodes
+
+#### Service discovery
+
+#### Membership services
+
