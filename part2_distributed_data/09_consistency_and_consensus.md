@@ -9,10 +9,16 @@
 3. [Ordering Guarantees](#Ordering-Guarantees)
     - [Ordering and Causality](#Ordering-and-Causality)
     - [Sequence Number Ordering](#Sequence-Number-Ordering)
+    - [Total Order Broadcast](#Total-Order-Broadcast)
+4. [Distributed Transactions and Consensus](#Distributed-Transactions-and-Consensus)
+    - [Atomic Commit and Two-Phase Commit (2PC)](#Atomic-Commit-and-Two-Phase-Commit-(2PC))
+    - [Distributed Transactions in Practice](#Distributed-Transactions-in-Practice)
+    - [Fault Tolerant Consensus](#Fault-Tolerant-Consensus)
+    - [Membership and Coordination Services](#Membership-and-Coordination-Services)
 
 <br/>
 
-In chapter 8, the simplest way of handling faults is to simply entire service fail, and show user and error message.  
+The simplest way of handling faults is to simply entire service fail, and show user and error message.  
 If that solution is unacceptable, we need to find ways of _tolerating_ faults(packet loss, reordered, duplicated, arbitrarily delayed, nodes pause, crash).  
 
 One of the most important abstractions for distributed systems is _consensus_: getting all the nodes to agree on something.  
@@ -24,17 +30,18 @@ Also, we will get an overview of what is and isn't possible and those fundamenta
 ## Consistency Guarantees
 
 Most replicated databases provide at least _eventual consistency_(also called as _convergence_):  
-stop writing to the database and wait for some unspecified length of time, and eventually all read requests will return the same value.  
+stop writing to the database and weaker wait for some unspecified length of time, and eventually all read requests will return the same value.  
 However, this is weak guarantee - it doesn't say anything about _when_ the replicas will converge.  
 
 When working with a database that provides only weak guarantees, you need to be constantly aware of its limitations and bugs are subtle and hard to find by testing.  
-In this chapter, we will explore stronger consistency models that data systems may choose to provide, but have worse performance or be less fault-tolerant that the systems with weawker guarantees.
+In this chapter, we will explore stronger consistency models that data systems may choose to provide, but have worse performance or be less fault-tolerant that the systems with weaker guarantees.
 
 <br/>
 
 ## Linearizability
 
-In an eventually consistent database, if you ask two different replicas the same question at the same time, you may get two different answers.  
+In an eventually consistent database, if you ask two different replicas the same question at the same time, 
+you may get two different answers.  
 Wouldn't it be a lot simpler if the database could give the illusion that there is only one replica?
 
 This is the idea behind _linearizability(= atomic consistency, strong consistency, immediate consistency, external consistency)_:  
@@ -63,6 +70,9 @@ If one client's read returns the new value, all subsequent reads must also retur
 
 ![10_linearlizable_example2](../resources/part2/10_linearlizable_example2.png)
 
+Client A has already read the new value 4 before B's read started, 
+so B is not allowed to read an older value than A.  
+
 #### Linearizability Versus Serializability
 
 **Linearlizability**: 
@@ -71,7 +81,8 @@ recency guarantee on reads and writes of a register
 **Serializability**:  
 an isolation property of _transactions_, where every transaction may read and write multiple objects
 
-A database may provide both serializability and linearlizability, and this combination is knows as _strict serializability_ or _strong one-copy serializability_.  
+A database may provide both serializability and linearlizability, and this combination is knows as _strict serializability_ 
+or _strong one-copy serializability_.  
 Implementations of serializability based on two-phase locking or actual serial execution are typically linearizable.  
 
 However, serializable snapshot isolation is not linearizable;  
@@ -91,10 +102,11 @@ Also, Oracle Real Application Clusters(RAC) uses a lock per disk page, with mult
 
 #### Constraints and uniqueness guarantees
 
-If you want to enforce contraints and uniqueness guarantees as the data is written, you need linearizabilty.  
+If you want to enforce constraints and uniqueness guarantees as the data is written, you need linearizabilty.  
 For example, a username or email address must uniquely identify one user, bank account balance never goes negative.  
+These constraints all require there to be a single up-to-date value.  
 
-Other kinds of constraints, such as foreign key or attribute constraints, can be implemented without requiring linearizability.  
+In real applications, it is sometimes acceptable to treat such constraints loosely.  
 
 #### Cross-channel timing dependencies
 
@@ -106,7 +118,8 @@ There is a risk of a race condition:
 the message queue might be faster than the internal replication inside the storage service.  
 When the resizer fetches the image, it might see an old version of the image.  
 
-This problem arises because there are two different communication channels between the web server and the resizer: the file storage and message queue.
+This problem arises because there are **two different communication channels** 
+between the web server and the resizer: the file storage and message queue.
 
 ### Implementing Linearizable Systems
 
@@ -114,12 +127,12 @@ The most common approach to making a system fault-tolerant is to use replication
 Let's check replication methods, and compare whether they can be made linearizable:  
 
 - _Single-leader replication (potentially linearizable)_
-  - If you make reads from the leader, or from synchronously updated followers, they have the _potential_ to be linearizzable.  
+  - If you make reads from the leader or from synchronously updated followers, they have the _potential_ to be linearizable.  
   - However, not every single-leader database is actually linearizable, either by design or due to concurrency bugs.
-  - Also, you have to know for sure who the leader is.
-  - With asynchronous replication, failoever may even lose commited writes, which violates both durability and linearizability.  
+  - Also, you have to know for sure **who the leader is**.
+  - With asynchronous replication, failover may even lose committed writes, which violates both durability and linearizability.  
 - _Consensus algorithms (linearizable)_
-  - They can bear a resembalance to single-leader replication with measures to prevent split brain and stale replicas.
+  - They can bear a resemblance to single-leader replication with measures to prevent split brain and stale replicas.
   - Zookeeper, etcd
 - _Multi-leader replication (not linearizable)_
   - They concurrently process writes on multiple nodes and asynchronously replicate them to other nodes.
@@ -127,7 +140,7 @@ Let's check replication methods, and compare whether they can be made linearizab
 - _Leaderless replication (probably not linearizable)_  
   - They depend on how you define strong consistency. However, it is not quite true.
   - Conflict resolution based on time-of-day clocks in Cassandra, are nonlinearizable, because clock timestamps cannot be guaranteed.
-  - Sloppy quorums also ruin any chance of lineariability.
+  - Sloppy quorums also ruin any chance of linearizability.
 
 #### Linearizability and quorums
 
@@ -138,7 +151,7 @@ Interestingly, it is possible to make Dynamo-style quorums linearizable at the c
 a reader must perform read repair, and a writer must read the latest state of a quorum of nodes before sending its writes.  
 
 However, Riak does not perform synchronous read repair due to the performance penalty.  
-Cassandra does wait for read repair to complete on quo‐ rum reads, 
+Cassandra does wait for read repair to complete on quorum reads, 
 but it loses linearizability if there are multiple concurrent writes to the same key, 
 due to its use of last-write-wins conflict resolution.
 
@@ -165,7 +178,8 @@ The trade-off is as follows:
 Thus, applications that don't require linearizability can be more tolerant of network problems.  
 This insight is popular known as the _CAP theorem_.  
 
-At the time, CAP encouraged database engineers to explore a wider design space of distributed shared-nothing systems, which is suitable for implementing large-scale web services.  
+At the time, CAP encouraged database engineers to explore a wider design space of distributed shared-nothing systems, 
+which is suitable for implementing large-scale web services.  
 CAP deserves credit for this culture shift-witness the explosion of new database technologies since the mid-2000s(known as NoSQL).  
 
 The CAP theorem as formally defined is of very narrow scope: consistency model(linearizability), kind of fault(network partitions).  
@@ -173,7 +187,7 @@ Thus, although CAP has been historically influential, it has little value for de
 
 #### Linearizability and network delays
 
-Although linearizability is a  useful guarantee, few systems are actually linearizable in practice.  
+Although linearizability is a useful guarantee, few systems are actually linearizable in practice.  
 Even RAM on a modern multi-core CPU is not linearizable.  
 If a thread running on one CPU core writes to a memory address, and a thread on another CPU core reads the same address shortly afterward, 
 it is not guaranteed to read the value written by the first thread(unless a _memory barrier_ or _fence_ is used).  
@@ -181,7 +195,7 @@ it is not guaranteed to read the value written by the first thread(unless a _mem
 The reason for dropping linearizability is _performance_, not fault tolerance.  
 Many distributed databases do so primarily to increase performance, not so much for fault tolerance.  
 A faster algorithm for linearizability does not exist, but weaker consistency models can be much faster, 
-so this trade-off is important for latency-sensitive systems.  
+so this trade-off is important for latency-sensitive systems.   
 
 <br/>
 
@@ -273,3 +287,64 @@ The problem here is that the total order of operations only emerges after you ha
 To conclude: in order to implement something like a uniqueness constraints for usernames, 
 it's not sufficient to have a total ordering of operations - you also need to know when that order si finalized.  
 
+### Total Order Broadcast
+
+The challenge is how to scale the system if the throughput is greater than a single leader can handle, 
+and also how to handle failover if the leader fails.  
+This problem is known as _total order broadcast_ or _atomic broadcast_.
+
+Total order broadcast is usually described as a protocol for exchanging messages between nodes.  
+
+- _Reliable delivery_- No messages are lost: if a message is delivered to one node, it is delivered to all nodes. 
+- _Totally ordered delivery_- Messages are delivered to every node in the same order.   
+
+#### Using total order broadcast
+
+1. Consensus services such as ZooKeeper and etcd actually implement total order broadcast.  
+2. Total order broadcast is exactly what you need for database replication(_state machine replication_).  
+3. Total order broadcast can be used to implement serializable transactions.
+4. Useful for implementing a lock service that provides fencing tokens. 
+
+In total order broadcast, the order is fixed at the time the messages are delivered:  
+a node is not allowed to retroactively insert a message into an earlier position in the order 
+if subsequent messages have already been delivered.  
+**This fact makes total order broadcast stronger that timestamp ordering.**
+
+#### Implementing linearizable storage using total order broadcast
+
+Skip..
+
+#### Implementing total order broadcast using linearizable storage
+
+Skip.. 
+
+<br/>
+
+## Distributed Transactions and Consensus
+
+Consensus is one of the important and fundamental problems in distributed computing.  
+The goal is simply to _get serveral nodes to agree on something_.  
+Unfortunately, many broken systems have been built in the mistaken belief that this problem is easy to solve.  
+
+There are a number of situations in which it is important for nodes to agree.  
+
+- _Leader election_
+- _Atomic commit_
+
+#### The Impossibility of Consensus
+
+FLP: there is no algorithm that is always ables to reach consensus if there is a risk that a node may crash.  
+In a distributed system, we must assume that nodes may crash, so reliable consensus is impossible.  
+
+If the algorithm is allowed to use timeouts, or some other way of identifying suspected crashed nodes, 
+then consensus becomes solvable.  
+Thus, although the FLP result about the impossibility of consensus is of great theoretical importance, 
+distributed systems can usually achieve consensus in practice.  
+
+### Atomic Commit and Two Phase Commit (2PC)
+
+### Distributed Transactions in Practice
+
+### Fault Tolerant Consensus
+
+### Membership and Coordination Services
