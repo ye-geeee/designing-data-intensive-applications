@@ -483,13 +483,63 @@ transaction coordinator is itself a kind of database, so it needs to be approach
 
 ### Fault Tolerant Consensus
 
+The consensus problem is normally formalized as follows:  
+one of more nodes may _propose_ values, and the consensus algorithm _decides_ on one of those values.  
+In this formalism, a consensus algorithm must satisfy the following properties:  
+
+- _Uniform agreement_: No two nodes decide differently
+  - define the core idea of consensus
+- _Integrity_: No node decides twice
+  - define the core idea of consensus
+- _Validity_: If a node decides value v, then v was proposed by some node
+  - rule out trivial solutions
+- _Termination_: Every node that does not crash eventually decides some value. 
+  - fault tolerance, it must make progress
+
 #### Consensus algorithms and total order broadcast
+
+The best-known fault-tolerant consensus algorithms are Viewstamped Replication(VSR).  
+They decide on a _sequence_ of values, which makes them _total order broadcast_ algorithms.  
+
+Remember that total order broadcast requires messages to be delivered exactly once, in the same order, to all nodes.  
+So, total order broadcast is equivalent to repeated rounds of consensus.  
+
+Viewstamped Replication, Raft, and Zab implement total order broadcast directly, 
+because that is more efficient than doing repeated rounds of one-value-at-a-time consensus.  
 
 #### Single-leader replication and consensus
 
+Skip.. nothing to write
+
 #### Epoch numbering and quorums
 
+All of the consensus protocols discussed so far internally use a leader in some form or another, 
+but the don't guarantee that the leader is unique.  
+Instead, they can make a weaker guarantee: _epoch number_.  
+Within each epoch, the leader is unique.  
+
+Before a leader is allowed to decide anything, it must collect votes from a _quorum_ of nodes.  
+For every decision that a leader wants to make, it must send the proposed value to the other nodes 
+and wait for a quorum of nodes to response in favor of the proposal.  
+Thus, we have two rounds of voting: choose a leader + vote on a leader's proposal
+If the vote on a proposal does not reveal any higher-numbered epoch, 
+the current leader can conclude that no leader election with a higher epoch number has happened, 
+and therefore be sure that it still holds the leadership.  
+
+This voting process looks similar to two-phase commit.  
+However, there are differences which are key to the correctness and fault tolerance of a consensus algorithm.  
+
+- only require votes from a majority of nodes, not _every_ participant
+- consensus algorithm define a recovery process
+
 #### Limitations of consensus
+
+However, consensus algorithms are not used everywhere, because the benefits come at cost.  
+
+- looks like synchronous replication
+- strict majority to operate
+- they can't just add or remove nodes in the cluster(_Dynamic membership_)
+- terrible performance
 
 ### Membership and Coordination Services
 
