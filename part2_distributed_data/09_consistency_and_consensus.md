@@ -543,9 +543,28 @@ However, consensus algorithms are not used everywhere, because the benefits come
 
 ### Membership and Coordination Services
 
+ZooKeeper implements not only total order broadcast, but also an interesting set of other features 
+that turn out to be particularly useful when building distributed systems:  
+
+- _Linearizable atomic operations_
+- _Total ordering of operation_
+- _Failure detection_
+- _Change notifications_
+
 #### Allocating work to nodes
+
+ZooKeeper runs on a fixed number of nodes 
+and perform its majority votes among these nodes while supporting a potentially large number of clients.  
+Thus, ZooKeeper provides a way of "outsourcing" some of the work coordination nodes to an external service.  
 
 #### Service discovery
 
+ZooKeeper, etcd, and Consul are often used for _service discovery_  
+- find out which IP address you need to connect to in order to reach a particular service.  
+You can configure your services such that when they start up they register their network endpoints in a service registry, 
+  where they can then be found by other services.
+
 #### Membership services
+
+A membership service determines which nodes are currently active and live members of a cluster.  
 
