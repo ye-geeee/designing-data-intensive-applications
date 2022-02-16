@@ -114,6 +114,21 @@ Part of what makes Unix tools so successful is that they make it easy to see wha
 
 ## MapReduce and Distributed Filesystems
 
+As with most Unix tools, running a MapReduce job normally does not modify the input and does not have any side effects other than producing the output. 
+The output files are written once, sequentially.
+
+Like `stdin` and `stdout` from Unix, MapReduce jobs read and write files on a distributed filesystem.  
+In Hadoop's implementation of MapReduce, this filesystem is called HDFS(Hadoop Distributed File System).  
++ GlusterFS, Quantcast File System(QFS), Amazon S3, Azure Blob Storage, OpenStack Swift
+
+HDFS is based on the _shared-nothing_ principle.  
+The shared-nothing approach requires no special hardware, only computers connected by a conventional 
+
+HDFS consists of a daemon process running on each machine, 
+exposing a network service that allows other nodes to access files stored on that machine.  
+A central server called the _NameNode_ keeps tracks of which file blocks are stored on which machine.  
+Thus, HDFS conceptually creates one big filesystem that can use the space on the disks of all machines running the daemon.
+
 ### MapReduce Job Execution
 
 #### Distributed execution of MapReduce
