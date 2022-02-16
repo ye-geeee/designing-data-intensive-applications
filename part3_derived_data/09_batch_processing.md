@@ -69,17 +69,48 @@ It's the same principle in "SSTables and LSM-Trees":
 chunks of data can be sorted in memory and written out to disk as segment files, 
 and then multiple sorted segments can be merged into a larger sorted file.  
 
-The **sort** utility in GNU Coreutils automatically handles larger-than-memory datasets by spilling to disk, 
+The `sort` utility in GNU Coreutils automatically handles larger-than-memory datasets by spilling to disk, 
 and automatically parallelize sorting across multiple CPU cores.  
 Therefore, the simple chain of Unix commands we saw earlier easily scales to large datasets, without running out of memory.  
 
 ### The Unix Philosophy
 
+The idea of connecting programs with pipes became part of what is now knows as the _Unix philosophy_.  
+A set of design principles:  
+
+1. Make each program do one thing well.
+2. Expect the output of every program to become the input to another. 
+3. Don't hesitate to throw away the clumsy parts and rebuild them. 
+4. Use tools in preference to unskilled help to lighten a programming task. 
+-> automation, rapid prototyping, incremental iteration, breaking down large projects into manageable chunks
+
+A Unix shell like `bash` lets us easily _compose_ these small programs into surprisingly powerful data processing jobs.  
+
 #### A uniform interface
+
+If you expect the output of one program to become the input to another program, 
+that means those programs must use the same data format - _compatible interface_.  
+
+By convention, many(but not all) Unix programs treat this sequence of bytes as ASCII text.  
+Although it's not perfect, even decades later, the uniform interface of Unix is still something remarkable.  
 
 #### Separation of logic and writing
 
+A program can still read and write files directly if it needs to, 
+but the Unix approach works best if a program doesn't worry about particular file paths and simply uses `stdin` and `stdout`. 
+This allows a shell user to wire up the input and output in whatever way they want; 
+The program doesn't know or care where the input is coming from and where the output is going to - _loose coupling_, _late binding_, _inversion of control_.
+
 #### Transparency and experimentation
+
+Part of what makes Unix tools so successful is that they make it easy to see what is going on:
+
+- The input files to Unix commands are normally treated as immutable. 
+  You can run the commands as often as you want, trying various command-line options, without damaging the input files. 
+- You can end the pipeline at any point, pipe the output into `less`, and look at it to see if is has expected form. 
+  This ability to inspect is great fo debugging. 
+- You can write the output of one pipeline stage to a file and use that file as input to the next stage. 
+  This allows you to restart the later stage without rerunning the entire pipeline.  
 
 ## MapReduce and Distributed Filesystems
 
