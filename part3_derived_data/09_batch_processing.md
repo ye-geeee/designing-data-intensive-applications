@@ -131,9 +131,56 @@ Thus, HDFS conceptually creates one big filesystem that can use the space on the
 
 ### MapReduce Job Execution
 
+The pattern of data processing in MapReduce is very similar to Unix system:
+
+1. Read a set of input files, and break it up into _records_. 
+2. Call the mapper function to extract a key and value from each input record. 
+3. Sort all the key-value pairs by key. 
+4. Call the reducer function to iterate over the sorted key-value pairs. 
+
+to create a MapReduce job, you need to implement two call back function, the mapper and reducer: 
+
+_Mapper_
+- called once for every input record
+- extract the key and value from the input record
+- each record is handled independently
+
+_Reducer_
+- collects all the values belonging to the same key
+- calls the reducer with an iterator over the collection of values
+- reducer can produce output records
+
 #### Distributed execution of MapReduce
 
+MapReduce can parallelize a computation across many machines, without you having to write code to explicitly handle the parallelism.  
+The mapper and reducer only operate on one record at a time and don't need to know where their input is coming, or their output is going to, 
+the framework can handle the complexities of moving data between machines.  
+We can use Unix tools as mappers and reducers, but more commonly they are implemented as functions in a conventional programming language(Hadoop-Java, MongoDB, CouchDB-JavaScript).
+
+In Hadoop MapReduce job, parallelization is based on partitioning.  
+It uses _putting the computation near the data_ principle:  
+it saves copying the input file over the network, reducing network load and increasing locality.  
+
+![01_Hadoop_workflows](../resources/part3/01_Hadoop_workflows.jpeg)
+
+The process of partitioning by reducer, sorting, and copying data partitions from mappers to reducers is known as the _Shuffle_.  
+Sorting key-value pairs is performed in stages. 
+
+1. each map task partitions its output by reducer, based on the hash of the key
+2. each of these partitions written to a sorted file on the mapper's local disk, using a technique similar to "SSTables and LSM Trees"
+3. whenever a mapper finishes reading its input file and writing its sorted output files, 
+   the MapReduce scheduler notifies the reducers that they can start fetching the output files from that mapper
+4. the reducer connect to each of the mappers and download the files of sorted key-value pairs for their partition
+
 #### MapReduce workflows
+
+The range of problems you can solve with a single MapReduce job is limited.  
+Thus, it is very common for MapReduce jobs to be chained together into _workflows_ 
+such that the output of one job becomes the input to the next job.  
+
+A batch job's output is only considered valid when the job has completed successfully.  
+To handle these dependencies between job executions, various workflow schedulers for Hadoop have been developed, including Oozie, Azkaban, Luigi, Airflow, and Pinball.
+These schedulers also have management features that are useful when maintaining a large collection of batch jobs.
 
 ### Reduce Side Joins and Grouping
 
