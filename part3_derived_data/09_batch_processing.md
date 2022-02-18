@@ -184,15 +184,83 @@ These schedulers also have management features that are useful when maintaining 
 
 ### Reduce Side Joins and Grouping
 
+In many datasets it is common for one record to have an association with another record: _foreign key, document reference_  
+A join in necessary whenever you have some code that needs to access records on both sides of that association.  
+
+In database, the database will typically use an _index_ to quickly locate the records of interest.  
+However, MapReduce has no concept of indexes- at least not in usual sense.  
+
+When a MapReduce job is given a set of files as input, it reads the entire content of all of those files.  
+In analytic queries, it is common to want to calculate aggregates over many records, so it might be quite a reasonable thing to do.
+Expecially, if you can parallelize the processing across multiple machines.  
+
 #### Example: analysis of user activity events
+
+The simplest implementation for join is to go over the data and query the database with id.  
+This is possible, but is would suffer from very poor performance.  
+
+In order to achieve good throughput in a batch process, the computation must be local to one machine.  
+Moreover, querying a remote database would mean that the batch job becomes nondeterministic, because the data in the remote database might change.  
+
+Thus, a better approach would be to take a copy of the database and to put it in the same distributed filesystem.  
+You would have two set of files in HDFS, and could use MapReduce to bring together all the relevant records in the same place and process them efficiently.  
 
 #### Sort-merge joins
 
+![02_Reduce_Side_Sort-merge.jpeg](../resources/part3/02_Reduce_Side_Sort-merge.jpeg)
+
+When the MapReduce framework partitions the mapper output by key and then sorts the key-value pairs, 
+the effect is that all the activity events and the user record with the same user ID become adjacent to each other in the reducer input.  
+The MapReduce job can even arrange the records to be sorted such that the reducer always sees the record from the user database first, 
+followed by the activity events in timestamp order - this technique is knows as a _secondary sort_.  
+
+Since the reducer processes all of the records fora  particular user ID in one go, 
+it only needs to keep one user record in memory at any one time.  
+This algorithm is knows as a _sort-merge join_.  
+
 #### Bringing related data together in the same place
+
+In a sort-merge join, the mappers and the sorting process make sure that all the necessary data to perform the join operation for a particular user ID 
+is brought together in the same place; a single call to the reducer.  
+Having lined up all the required data in advance, single-threaded piece of code that can churn through records with high throughput and low memory oeverhead.  
+
+Mappers "send messages" to the reducers.  
+When a mapper emits a key-value pair, the key acts like the destination address.  
+Thus, all key-value pairs with the same key will be delivered to the same destination.  
+
+MapReduce's separation from network communication and application logic contrasts with the typical use of databases.  
+Since MApReduce handles all network communication, it also shields the applciation code form havig to worry about partial failures.  
 
 #### GROUP BY
 
+The simplest way of implementing such a grouping operation with MapReduce
+is to set up the mappers so that the key-value pairs they produce use the desired grouping key.  
+
+Another common use for grouping is collating all the activity events for a particular user session, 
+in order to find out the sequence of a actions that the user took - a process called _sessionization_.  
+
+If you have multiple web servers handling user requests, 
+the activity events  for a particular user are most likely scattered across various different servers' log files.  
+You can implement sessionization by using a session cookie, user ID, or similar identifier as the grouping key 
+and bringing all the activity events for a particular user together in one place.  
+
 #### Handling skew
+
+The pattern of "bringing all records with the same key to the same place" breaks down if there is a large amount of data related to a single key - _linchpin_ or _hot keys_".  
+Collecting all activity related to a celebrity in a single reducer can lead to significant _skew_ (also knows as _hot keys_) - 
+that is, reducer must process significantly more records than the others.  
+
+For this issue, _skew join_ method in Pig runs a sampling job to determine which keys are hot.  
+For the other input to the join, records relating to the hot key need to be replicated to all reducers handling that key.  
+Secondly, _shared join_ method in crunch requires the hot keys to be specified to explicitly rather than using a sampling job.  
+
+Hive's skewed join requires hot keys to be specified explicitly in the table metadata, 
+and it stores records related to those keys in separate files from the rest.  
+When performing a join on that table, it uses a map-side join for the hot keys.  
+
+Two stages for grouping records by hoe key and aggregating them:  
+1. MapReduce stage: send records to a random reducer, so that each reducer performs the grouping on a subset of records and outputs a more compact aggregated value per key.  
+2. MapReduce job: combines the values from all of the first-stage reducers into a single value per key.  
 
 ### Map Side Joins
 
