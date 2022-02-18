@@ -32,6 +32,8 @@ Batch processing is an important building block in our quest to build reliable, 
 In this chapter, we will look at MapReduce and several other batch processing algorithms and frameworks, 
 and explore how they are used in modern data systems.  
 
+<br/>
+
 ## Batch Processing with Unix Tools
 
 ### Simple Log Analysis
@@ -111,6 +113,8 @@ Part of what makes Unix tools so successful is that they make it easy to see wha
   This ability to inspect is great fo debugging. 
 - You can write the output of one pipeline stage to a file and use that file as input to the next stage. 
   This allows you to restart the later stage without rerunning the entire pipeline.  
+
+<br/>
 
 ## MapReduce and Distributed Filesystems
 
@@ -264,13 +268,52 @@ Two stages for grouping records by hoe key and aggregating them:
 
 ### Map Side Joins
 
+_reduce-side joins_
+   - pros: you do not need to make any assumptions about the input data
+   - cons: compying to reducers, and merging of reducer inputs can be quite expensive.  
+
+_map-side join_
+   - can apply when you can make certain assumptions about your input data -> can make joining faster
+   - no reducers and no sorting
+   - mapper simply reads one input file block and writes one output file to the filesystem
+
 #### Broadcast hash joins
+
+Map-side join can be applied to the case where a large dataset is joined with a small dataset.  
+The small dataset needs to be small enough that it can be loaded entirely into memory in each of the mappers.  
+
+It first read the database from the distributed filesystem into an in-memory hash table.  
+The mapper can scan over the user activity and simply look up the user ID for each event in hash table.  
+
+_broadcast hash join_
+   - each mapper for a partition of the large input reads the entirety of the small input
+   - it uses hash table
+   - supported by Pic, Hive, Cascading, Crunch
+
+Instead of using in-memory hash table, 
+an alternative is to store the small join input in a read-only index on the local disk.  
+Frequently used parts will remain in the operating system's page cache, 
+so this approach can provide random-access lookups almost as fast as in-memory hash table, 
+but without actually requiring the dataset to fit in memory.  
 
 #### Partitioned hash joins
 
+If the inputs to the map-side join are partitioned, hash join approach can be applied to each partition independently.  
+f there are same numbered partition, it is sufficient for each mapper to oonly read one partition from each of input datasets.  
+This approach only works if both of the join's input have the same number of partitions.  
+
+known as _bucketed map joins_ in Hive
+
 #### Map-side merge joins
 
+If datasets are partitioned and also _sorted_ based on the key, 
+a mapper can perform the same merging operation that would normally be done by a reducer.  
+However, it may still be appropriate to perform the merge join in a separate map-only job.  
+
 #### MapReduce workflows with map-side joins
+
+As discussed, map-side joins also make more assumptions about the size, sorting, and partitioning of their input datasets.  
+Knowing about the physical layout of datasets in the distributed filesystem becomes important when optimizing join strategies.
 
 ### The Output of Batch Workflows
 
