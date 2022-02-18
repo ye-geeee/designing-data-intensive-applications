@@ -317,11 +317,54 @@ Knowing about the physical layout of datasets in the distributed filesystem beco
 
 ### The Output of Batch Workflows
 
+What is the result of all of that processing, once it is done?
+Why are we running all these jobs in the first place?
+
+A workflow of MapReduce jobs is not the same as a SQL query used for analytic purposes.  
+The output of a batch process is often not a report, but some other kind of structure.
+
 #### Building search indexes
+
+Google’s original use of MapReduce was to build indexes for its search engine.  
+Today, Hadoop MapReduce remains a good way of building indexes for Lucene/Solr.
+
+If you need to perform a full-text search over a fixed set of documents, 
+then a batch process is a very effective way of building the indexes: 
+the mappers partition the set of documents as needed, 
+each reducer builds the index for its partition, and the index files are written to the distributed filesystem
+
+- pros: indexing process is very easy
+- cons: if the indexed set of documents changes, it has to rerun, so it's expensive
 
 #### Key-value stores as batch process output
 
+Another common use for batch processing is to build machine learning systems such as classifiers.  
+How does the output from the batch process get back into a database where the web application can query it?
+
+The most obvious choice might be to use the client library for your favorite database directly within a mapper or reducer, 
+and to write from the batch job directly to the database server, one record at a time.  
+However, it is a bad idea for following reasons: 
+
+- performance is poor
+- database cas easily be overwhelmed, and its performance for queries is likely to suffer
+- if the entire job fails, no output is produced
+
+A much better solution is to build a brand-new database inside the batch job and write it as files to the job’s output directory in the distributed filesystem, just like the search indexes.  
+When loading data into Voldemort, the server continues serving requests to the old data files 
+while the new data files are copied from the distributed filesystem to the server’s local disk.  
+Once the copying is complete, the server atomically switches over to querying the new files.  
+If anything goes wrong in this process, it can easily switch back to the old files again, since they are still there and immutable.  
+
 #### Philosophy of batch process outputs
+
+Like Unix philosophy by treating inputs as immutable and avoiding side effects, 
+batch jobs not only achieve good performance but also become much easier to maintain:  
+
+- ease of rolling back
+- feature development can proceed more quickly (_minimizing irreversibiliy_)
+- fault tolerance
+- same set of files can beused as input for various different jobs
+- a separation of concerns and enables potential reuse of code
 
 ### Comparing Hadoop to Distributed Databases
 
