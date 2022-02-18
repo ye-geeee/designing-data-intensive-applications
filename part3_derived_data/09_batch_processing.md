@@ -368,11 +368,64 @@ batch jobs not only achieve good performance but also become much easier to main
 
 ### Comparing Hadoop to Distributed Databases
 
+Hadoop is somewhat like a distributed version of Unix, 
+where HDFS is the filesystem and MapReduce is a quirky implementation of a Unix process.  
+
+The biggest difference is that MPP databases focus on parallel execution of analytic SQL queries on a cluster of machines, 
+while the combination of MapReduce and a distributed filesystem provides something much more like a general-purpose operating system.
+
 #### Diversity of storage
+
+
+**MPP(Massively parallel processing)** 
+ 
+- require careful up-front modeling of the data and query patterns
+  before importing the data into the database’s proprietary storage format.
+- careful schema design slows down that centralized data collection
+- indiscriminate data dumping shifts the burden of interpreting the data
+
+**Hadoop**
+
+- opened up the possibility of indiscriminately dumping data into HDFS
+- simply making data available quickly (_sushi principle_)
 
 #### Diversity of processing models
 
+**MPP(Massively parallel processing)**
+
+- monolithic, tightly integrated pieces of software that take care of storage layout on disk, query planning, scheduling, and execution
+- can achieve very good performance on the types of queries for which it is designed
+
+**MapReduce**  
+
+- gave engineers the ability to easily run their own code over large datasets
+- too limiting and performed too badly for some types of processing
+
+**Hadoop**
+
+- allows expressive queries and elegant semantics without the need to write code
+- it was feasible to implement a whole range of approaches, which would not have been possible within the confines of a monolithic MPP database
+- system is flexible enough to support a diverse set of workloads within the same cluster.
+- includes both random-access OLTP databases
+
 #### Designing for frequent faults
+
+When comparing MapReduce to MPP databases, two more differences in design approach stand out:  
+the handling of faults and the use of memory and disk.
+
+**MPP(Massively parallel processing)**
+
+- If a node crashes while a query is executing, it aborts the entire query
+- prefer to keep as much data as possible in memory
+
+
+**MapReduce**
+
+- can tolerate the failure of a map or reduce task without it affecting the job as a whole by retrying work at the granularity of an individual task
+- eager to write data to disk
+- more appropriate for larger jobs
+
+experiment -> p.418
 
 ## Beyond MapReduce
 
