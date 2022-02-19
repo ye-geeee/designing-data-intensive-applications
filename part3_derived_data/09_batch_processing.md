@@ -418,7 +418,6 @@ the handling of faults and the use of memory and disk.
 - If a node crashes while a query is executing, it aborts the entire query
 - prefer to keep as much data as possible in memory
 
-
 **MapReduce**
 
 - can tolerate the failure of a map or reduce task without it affecting the job as a whole by retrying work at the granularity of an individual task
@@ -428,6 +427,13 @@ the handling of faults and the use of memory and disk.
 experiment -> p.418
 
 ## Beyond MapReduce
+
+Implementing a complex processing job using the raw MapReduce APIs is actually quite hard and laborious.  
+In response to the difficulty of using MapReduce directly, various higher-level programming models were created.  
+
+However, there are also problems with MapReduce which are not fixed by adding another level of abstraction and which manifest themselves as poor performance for some kides of processing.  
+On the one hand, MapReduce is robust.  
+On the other hand, other tools are sometimes orders of magnitude faster for some kinds of processing.  
 
 ### Materialization of Intermediate State
 
