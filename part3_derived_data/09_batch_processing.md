@@ -489,11 +489,43 @@ The improvement over MapReduce is that you save yourself writing all the interme
 
 ### Graphs and Iterative Processing
 
+
+It is also interesting to look at graphs in a batch processing context, 
+where the goal is to perform some kind of offline processing or analysis on an entire graph.  
+It is possible but this idea of “repeating until done” cannot be expressed, so it is often implemented using _iterative style_:  
+1. scheduler runs a batch process to calculate one step of the algorithm
+2. scheduler checks whether is has finished
+3. If not finished, go to step 1
+
+This approach works, but it is often very inefficient.  
+it will always read the entire input dataset and produce a completely new output dataset, 
+even if only a small part of the graph has changed compared to the last iteration.
+
 #### The Pregel processing model
+
+As an optimization for batch processing graphs, 
+the _bulk synchronous parallel (BSP)_ model of computation also known as _Pregel_ model has become popular.
+
+Like MapReduce, one vertex can “send a message” to another vertex, and typically those messages are sent along the edges in a graph.  
+The difference from MapReduce is that in the Pregel model, a vertex remembers its state in memory from one iteration to the next, 
+so the function only needs to process new incoming messages.
 
 #### Fault tolerance
 
+Pregel implementations guarantee that messages are processed exactly once at their destination vertex in the following iteration.  
+This fault tolerance is achieved by periodically checkpointing the state of all vertices at the end of an iteration, 
+writing their full state to durable storage.
+
 #### Parallel execution
+
+Ideally it would be partitioned such that vertices are colocated on the same machine if they need to communicate a lot.  
+However, finding such an optimized partitioning is hard—in practice, the graph is often simply partitioned by an arbitrarily assigned vertex ID, 
+making no attempt to group related vertices together.
+
+As a result, graph algorithms often have a lot of cross-machine communication overhead, 
+and the intermediate state (messages sent between nodes) is often bigger than the original graph.  
+For this reason, if your graph can fit in memory on a single computer, 
+it’s quite likely that a single-machine (maybe even single-threaded) algorithm will outperform a distributed batch process.  
 
 ### High Level APIs and Languages
 
