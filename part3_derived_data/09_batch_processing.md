@@ -529,6 +529,41 @@ it’s quite likely that a single-machine (maybe even single-threaded) algorithm
 
 ### High Level APIs and Languages
 
+Higher-level languages and APIs(Hive, Pig, Cascading, Crunch) became popular because programming MapReduce jobs by hand is quite laborious.  
+These dataflow APIs generally use relational-style building blocks to express a computation:  
+internally, these operations are implemented using the various join and grouping algorithms.
+
+**Advantages**
+
+- requiring less code
+- write analysis code incrementally
+- run it frequently to observe what it is doing
+- make the humans using the system more productive
+- improve job execution efficiency at a machine level
+
 #### The move toward declarative query languages
 
+Hive, Spark, and Flink have cost-based query optimizers that can do this, 
+and even change the order of joins so that the amount of intermediate state is minimized.  
+The choice of join algorithm can make a big difference to the performance of a batch job.  
+
+MapReduce was built around the idea of function callbacks:  
+for each record or group of records, a user-defined function (the mapper or reducer) is called, 
+and that function is free to call arbitrary code in order to decide what to output.  
+Therefore, you can draw upon a large ecosystem of existing libraries to do things like 
+parsing, natural language analysis, image analysis, and running numerical or statistical algorithms.  
+
+However, dataflow engines have found that there are also advantages to incorporating more declarative features in areas besides joins.  
+If a callback function contains only a simple filtering condition, or it just selects some fields from a record, then there is significant CPU overhead.  
+If such simple filtering and mapping operations are expressed in a declarative way, 
+the query optimizer can take advantage of column-oriented storage layouts
+and read only the required columns from disk. Hive, Spark DataFrames, and Impala also use vectorized execution.  
+
 #### Specialization for different domains
+
+While the extensibility of being able to run arbitrary code is useful,
+it is worth having reusable implementations of the common building blocks.  
+
+So reusable implementations are emerging:  
+Mahout implements various algorithms for machine learning on top of MapReduce, Spark, and Flink, 
+while MADlib implements similar functionality inside a relational MPP database (Apache HAWQ).
