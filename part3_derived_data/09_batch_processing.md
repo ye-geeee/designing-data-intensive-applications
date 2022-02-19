@@ -437,11 +437,55 @@ On the other hand, other tools are sometimes orders of magnitude faster for some
 
 ### Materialization of Intermediate State
 
+The files on the distributed filesystem are simply intermediate state:  
+a means of passing data from one job to the next.  
+In complex workflows, there is a lot of such intermediate state.  
+
+The process of writing out this intermediate state to files is called materialization.  
+It means to eagerly compute the result of some operation and write it out, rather than computing it on.  
+
+MapReduce’s approach of fully materializing intermediate state has downsides compared to Unix pipes:
+
+- A MapReduce job can only start when all tasks in the preceding jobs have completed, 
+  whereas processes connected by a Unix pipe are started at the same time, with output being consumed as soon as it is produced.
+- Mappers are often redundant: just read back the same file that was just writ‐ ten by a reducer, and prepare it for the next stage of partitioning and sorting.
+  In many cases, the mapper code could be part of the previous reducer.  
+- Storing intermediate state in a distributed filesystem means those files are replicated across several nodes, which is often overkill for such temporary data.
+
 #### Dataflow engines
+
+Spark, Tez, and Flink have one thing in common:  
+they handle an entire workflow as one job, rather than breaking it up into independent subjobs.  
+We call these functions operators_ and dataflow engine provides several different options for connecting one operator’s output to another’s input:  
+
+1. repartition and sort records by key, like in the shuffle stage of MapReduce - enables sort-merge joins and grouping 
+2. Another possibility is to take several inputs and to partition them in the same way, but skip the sorting.  
+3. For broadcast hash joins, the same output from one operator can be sent to all partitions of the join operator.  
+
+You can use dataflow engines to implement the same computations as MapReduce workflows, and they usually execute significantly faster.  
 
 #### Fault tolerance
 
+An advantage of fully materializing intermediate state to a distributed filesystem is that it is durable, 
+which makes fault tolerance fairly easy in MapReduce: just restart.  
+
+Spark, Flink, and Tez avoid writing intermediate state to HDFS, so they take a different approach to tolerating faults:  
+- Spark: resilient distributed dataset(RDD) abstraction
+- Flink: checkpoints operator state
+
+When recomputing data, it is important to know whether the computation is deterministic.
+The solution in the case of nondeterministic operators is normally to kill the downstream operators as well, and run them again on the new data.
+
+In order to avoid such cascading faults, it is better to make operators deterministic.  
+However, recovering from faults by recomputing data is not always the right answer:  
+if the intermediate data is much smaller than the source data, or if the computation is very CPU-intensive,
+it is probably cheaper to materialize the intermediate data to files than to recompute it.
+
 #### Discussion of materialization
+
+Returning to the Unix analogy, we saw that MapReduce is like writing the output of each command to a temporary file, 
+whereas dataflow engines look much more like Unix pipes.  
+The improvement over MapReduce is that you save yourself writing all the intermediate state to the filesystem as well.
 
 ### Graphs and Iterative Processing
 
