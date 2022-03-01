@@ -186,7 +186,15 @@ so the throughput depends on the amount of history retained.
 
 #### When consumers cannot keep up with producers
 
-#### Replaying ole messages
+In this taxonomy, the log-based approach is a form of buffering with a large but fixed-sized buffer.  
+If a consumer falls so far behind that the messages it requires are older than what is retained on disk, 
+it will not be able to read those messages-so the broker effectively drops old messages.  
+
+Even if a consumer does fall too far behind and starts missing messages; it does not disrupt the service for other consumers.  
+You can experimentally consume a production log for development, testing, or debugging purposes, 
+without having to worry much about disrupting production services.  
+
+#### Replaying old messages
 
 ## Databases and Streams
 
