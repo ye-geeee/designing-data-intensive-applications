@@ -98,6 +98,17 @@ when a producer sends a message, it normally only waits for the broker to confir
 
 #### Multiple consumers
 
+When multiple consumers read messages in the same topic, two main patterns of messaging are used:  
+
+_Load balancing_
+- Each message is delivered to _one_ of the consumers
+- able to add consumers to parallelize the processing
+_ in JMS, it is called a _shared subscription_
+
+_Fan-out_
+- Each message is delivered to _all_ of the consumers
+- in JMS, it is supported by topic subscriptions, and exchange bindings in AMQP
+
 #### Acknowledgments and redelivery
 
 ### Partitioned Logs
