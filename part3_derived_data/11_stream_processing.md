@@ -43,6 +43,24 @@ So, it is better for consumers to be notified when new events appear.
 
 ### Message Systems
 
+A common approach for notifying consumers about new events is to use a _messaging system_.  
+The basic model of this approach is Unix pipe or TCP communication, which connect exactly one sender with one recipient.  
+The messaging system allows multiple producer nodes to send messages to the same topic and allows multiple consumer nodes to receive messages in a topic.  
+
+Within _publish/subscribe_ model, different systems take a wide range of approaches, and there is no one right answer for all purposes:  
+
+1. _What happens if the producers send messages faster than the consumers can process them?_
+   - a. drop messages
+   - b. buffer messages in a queue - must understand what happened as that queue grows
+   - c. apply _backpressure_(blocking the producer from sending more messages)
+2. _What happens if nodes crash or temporarily go offline - are any messages lost?_
+   - durability may require some combination of writing to disk and/or replication
+    
+Whether message loss is acceptable depends very much on the application.  
+However, beware that if many messages are dropped, it may not be immediately apparent that the metrics are incorrect.  
+A nice property of the batch processing systems is that they provide a strong reliability guarantee:  
+failed tasks are automatically retried, and partial output from failed tasks is automatically discarded.  
+
 #### Direct Messaging from producers to consumers
 
 #### Message brokers
