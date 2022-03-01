@@ -208,6 +208,9 @@ It allows more experimentation and easier recovery from errors and bugs, making 
 
 ## Databases and Streams
 
+In this section we will first look at a problem that arises in heterogeneous data systems, 
+and then explore how we can solve it by bringing ideas from event streams to databases. 
+
 ### Keeping Systems in Sync
 
 ### Change Data Capture
