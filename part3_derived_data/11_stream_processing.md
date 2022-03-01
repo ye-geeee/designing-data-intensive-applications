@@ -133,6 +133,20 @@ This is the idea behind _log-based message brokers_.
 
 #### Using logs for message storage
 
+A log is simply an append-only sequence of records on disk.  
+The same structure can be used to implement a message broker:  
+a producer sends a message by appending it to the end of the log, 
+and a consumer receives message by reading the log sequentially.  
+
+In order to scale to higher throughput than a single disk can offer, the log can be _partitioned_.  
+Different partitions can then be hosted on different machines, making each partition a separate log that can be read and written independently of other partitions.
+
+With each partition, the broker assigns a monotonically increasing sequence number, or _offset_, to every message.  
+There is no ordering guarantee across different partitions.  
+
+Apache Kafka, Amazon Kinesis Streams, and Twitter's DistributedLog are log-based message brokers that work like this.  
+Google Cloud Pub/Sub is similar but exposes a JMS-style API rather than a log abstraction.  
+
 #### Logs compared to traditional messaging
 
 #### Consumer offsets
