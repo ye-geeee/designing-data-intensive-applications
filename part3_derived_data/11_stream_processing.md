@@ -111,6 +111,18 @@ _Fan-out_
 
 #### Acknowledgments and redelivery
 
+In order to ensure that the message is not lost by crash, message brokers use _acknowledgments_:  
+a client must explicitly tell the broker when it has finished processing a message so that the broker can remove it from the queue.  
+
+If there is no acknowledgment, the broker delivers the message again to another consumer.  
+When combined with load balancing, this redelivery behavior has an interesting effect on the ordering of messages.  
+
+Even if the message broker otherwise tries to preserve the order of messages, 
+the combination of load balancing with redelivery inevitably leads to message being reordered.  
+To avoid this issue, you can use a separate queue per consumer.  
+
+<br/> 
+
 ### Partitioned Logs
 
 #### Using logs for message storage
