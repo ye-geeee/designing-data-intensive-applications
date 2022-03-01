@@ -268,6 +268,12 @@ but it has downside that all the issues of replication lag apply.
 
 #### Initial snapshot
 
+Building a new full-text index requires a full copy of the entire database.  
+You need to start with a consistent snapshot, as previously discussed with "Setting Up New Followers".  
+
+The snapshot of the database must correspond to a known position of offset in the change log, 
+so that you known at which point to start applying changes after the snapshot has been processed.  
+
 #### Log compaction
 
 #### API support for change streams
