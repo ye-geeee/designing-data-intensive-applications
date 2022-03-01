@@ -243,7 +243,28 @@ but neither of follows the other, and so conflicts can occur.
 
 ### Change Data Capture
 
+The problem with most databases' logs is that they have been implemented internally, not a public.  
+So, it was difficult to take all the changes made in a database and replicate them to a different storage such as a search index, cache, or data warehouse.  
+
+More recently, there has been growing interest in _change data capture_(CDC).  
+For example, you can capture the changes in database and apply the changes to a search index.  
+If the log of changes is applied in the same order, you can expect the data in the search index to match the data in the database.  
+The search index is just consumer of the change stream.  
+
+![cdc_example](../resources/part3/04_cdc_example.png)
+
 #### Implementing change data capture
+
+We can call the log consumers _derived data systems_.  
+Essentially, change data capture makes one database the leader, and turns the others into followers.  
+
+A log-based message broker is suited for transporting the change events from the source database, since it preserves the ordering of messages.  
+Database triggers can be used , but they tend to be fragile and have significant performance overheads.  
+
+Like message brokers, change data capture is usually asynchronous:  
+the system of record database does not wait for the change to be applied to consumers before committing it.  
+The operation advantage is that adding a slow consumer does not affect the system of record too much, 
+but it has downside that all the issues of replication lag apply.  
 
 #### Initial snapshot
 
