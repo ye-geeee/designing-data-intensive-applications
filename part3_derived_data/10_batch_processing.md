@@ -29,7 +29,7 @@ Three different type fo systems
    - operates on events shortly after they happen -> lower latency
 
 Batch processing is an important building block in our quest to build reliable, scalable, and maintainable applications. 
-In this chapter, we will look at MapReduce and several other batch processing algorithms and frameworks, 
+In this chapter, we will look at MapReduce and several  other batch processing algorithms and frameworks, 
 and explore how they are used in modern data systems.  
 
 <br/>
