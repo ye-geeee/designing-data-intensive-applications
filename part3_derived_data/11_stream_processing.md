@@ -196,6 +196,16 @@ without having to worry much about disrupting production services.
 
 #### Replaying old messages
 
+In a log-based message broker, consuming messages is more like reading from a file:  
+it is a read-only operation that does not change the log.  
+
+The only side effect of processing, besides any output of the consumer, is that the consumer offset moves forward.  
+However, the offset is under the consumer's control, so it can easily be manipulated if necessary.  
+
+This aspect makes log-based messaging more like the batch processes, 
+where derived data is clearly separated from input data through a repeatable transformation process.  
+It allows more experimentation and easier recovery from errors and bugs, making it a good tool for integrating dataflows within an organization.  
+
 ## Databases and Streams
 
 ### Keeping Systems in Sync
