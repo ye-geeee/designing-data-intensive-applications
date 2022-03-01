@@ -84,6 +84,18 @@ when a producer sends a message, it normally only waits for the broker to confir
 
 #### Message brokers compared to databases
 
+1. Deletion
+- database: keep data until it is explicitly deleted
+- message brokers: delete message when is has been delivered to its consumers -> not suitable for long-term data storage
+2. Queue size
+- message brokers: assume that their work set is fairly small, so if consumers are slow there and individual message takes longer to process, the overall throughput may degrade
+3. Secondary Index
+- database: support secondary index
+- message brokers: support using a subset of topics matching some pattern
+4. Arbitrary queries
+- database: based on a point-in-time snapshot of the data, if the data changed, the first client does not find out that its prior result is now outdated
+- message brokers: do not support arbitrary queries, but they do notify clients when data changes
+
 #### Multiple consumers
 
 #### Acknowledgments and redelivery
