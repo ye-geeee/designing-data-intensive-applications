@@ -41,6 +41,8 @@ and each consumer periodically polls the datastore to check for events that have
 However, when moving toward continual processing with low delays, polling is expensive.  
 So, it is better for consumers to be notified when new events appear.
 
+<br/>
+
 ### Message Systems
 
 A common approach for notifying consumers about new events is to use a _messaging system_.  
@@ -206,12 +208,38 @@ This aspect makes log-based messaging more like the batch processes,
 where derived data is clearly separated from input data through a repeatable transformation process.  
 It allows more experimentation and easier recovery from errors and bugs, making it a good tool for integrating dataflows within an organization.  
 
+<br/>
+
 ## Databases and Streams
 
 In this section we will first look at a problem that arises in heterogeneous data systems, 
 and then explore how we can solve it by bringing ideas from event streams to databases. 
 
 ### Keeping Systems in Sync
+
+In practice, most nontrivial applications need to combine several different technologies in order to satisfy their requirements:    
+ex. OLTP (cache for speed + full-text index for queries, data warehouse for analytics)  
+
+With data warehouse this synchronization is usually performed by ETL processes.  
+In periodic full database dumps are too slow,  
+an alternative that is sometimes used in _dual writes_, 
+in which the application code explicitly writes to each of the systems when data changes.  
+
+There are some serious problems:   
+
+![03_dual_writes_problems](../resources/part3/03_dual_writes_problems.png)
+
+1. race condition: the data search index and database can be permanently inconsistent with each other, even though no error occured
+2. fault-tolerance problem: one of the writes may fail while the other succeeds
+
+If you have only one replicated database with a single leader, 
+then that leader determines the order of writes, 
+so the state machine replication approach works among replicas of the database.  
+However, there isn't a single leader:  
+the database may have a leader and the search index may have a leader, 
+but neither of follows the other, and so conflicts can occur.  
+
+<br/>
 
 ### Change Data Capture
 
