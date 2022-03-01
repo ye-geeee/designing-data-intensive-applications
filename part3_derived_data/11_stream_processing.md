@@ -149,6 +149,18 @@ Google Cloud Pub/Sub is similar but exposes a JMS-style API rather than a log ab
 
 #### Logs compared to traditional messaging
 
+The log-based approach trivially supports fan-out messaging, because several consumers can independently read the log without affection each other.  
+To achieve load balancing across a group of consumers, the broker can assign entire partitions to nodes in the consumer group.  
+
+**Downside**
+- The number of nodes sharing the work of consuming a topic can be at most the number of log partitions in that topic
+- If a single message is slow to process, it holds up the processing of subsequent messages in that partition
+
+Thus, in situations where message may be expensive to process and you want to parallelize processing on a message-by-message basis, 
+where message ordering is not so important, the JMS/AMQP style of message broker is preferable.  
+On the other hand, if each message is fast to process and where message ordering is important, 
+the log-based approach works very well.  
+
 #### Consumer offsets
 
 #### Disk space usage
