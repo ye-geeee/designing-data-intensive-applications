@@ -63,6 +63,14 @@ failed tasks are automatically retried, and partial output from failed tasks is 
 
 #### Direct Messaging from producers to consumers
 
+- UDP multicast is widely used in the financial industry for streams such as stocks market feeds, where low latency is iomportant.  
+- ZeroMQ(brokerless messaging libraries), and nanomsg implements publish/subscribe over TCP or IP multicast.  
+- StatsD and Brubeck use UDP messaging for collectin metrics from all machines on the network and monitoring them.  
+- If the consumer exposes a service on the network, producers can make a direct HTTP or RPC request.  
+
+With this approach, they generally require the application code to be aware of the possibility of message loss.  
+If a consumer is offline, it may miss messages that were sent while it is unreachable.  
+
 #### Message brokers
 
 #### Message brokers compared to databases
