@@ -29,6 +29,18 @@ unbounded, incrementally processed counterpart to the batch data.
 
 ## Transmitting Event Streams
 
+In a stream processing context, a record is more commonly knows as an _event_.  
+An event is generated once by a _producer_(also knows as a _publisher_ or _sender_), 
+and then potentially processed by multiple _consumers_(_subscribers_ or _recipients_).  
+Plus, related events are usually grouped together into a _topic_ or _stream_.  
+
+In principle, a file or database is sufficient to connect producers and consumers:  
+a producer writes every event that is generates to the datastore, 
+and each consumer periodically polls the datastore to check for events that have appeared since it last ran.  
+
+However, when moving toward continual processing with low delays, polling is expensive.  
+So, it is better for consumers to be notified when new events appear.
+
 ### Message Systems
 
 #### Direct Messaging from producers to consumers
