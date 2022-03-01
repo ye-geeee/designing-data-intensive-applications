@@ -13,6 +13,20 @@
     - [Reasoning About Time](#Reasoning-About-Time)
     - [Stream Joins](#Stream-Joins)
 
+To reduce delay of batch processing, we can run the processing more frequently.  
+This is the idea behind _stream processing_.
+
+In this chapter we will look at _event streams_ as a data management mechanism:  
+unbounded, incrementally processed counterpart to the batch data.
+
+**Topic**
+
+- how streams are represented, stored, and transmitted over a network
+- relationship between stream sand databases
+- approaches and tools for processing those streams continually, and way that they can be used to build applications
+
+<br/>
+
 ## Transmitting Event Streams
 
 ### Message Systems
