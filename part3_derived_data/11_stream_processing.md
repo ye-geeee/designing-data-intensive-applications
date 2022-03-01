@@ -125,6 +125,12 @@ To avoid this issue, you can use a separate queue per consumer.
 
 ### Partitioned Logs
 
+Sending a packet over a network or making a request to a network service is normally a transient operation that leaves no permanent trace.  
+You cannot run the same consumer again and expect to get the same result.  
+
+Why can we not have a hybrid, combining the durable storage approach of databases with the low-latency notification facilities of messaing?  
+This is the idea behind _log-based message brokers_.  
+
 #### Using logs for message storage
 
 #### Logs compared to traditional messaging
