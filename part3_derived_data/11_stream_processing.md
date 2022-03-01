@@ -73,6 +73,15 @@ If a consumer is offline, it may miss messages that were sent while it is unreac
 
 #### Message brokers
 
+A widely used alternativ is to send messages via a _message broker_, 
+which is essentially a kind of database that is optimized for handling message streams.  
+
+By centralizing the data in the broker, these systems can more easily tolerate clients that come and go, 
+and the question of durability is moved to the broker instead.  
+
+A consequence of queueing is also that consumers are generally _asynchronous_:  
+when a producer sends a message, it normally only waits for the broker to confirm.  
+
 #### Message brokers compared to databases
 
 #### Multiple consumers
