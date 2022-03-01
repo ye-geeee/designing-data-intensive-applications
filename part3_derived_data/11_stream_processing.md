@@ -163,7 +163,26 @@ the log-based approach works very well.
 
 #### Consumer offsets
 
+Consuming a partition sequentially makes it easy to tell which messages have been processed:  
+offset < current offset have already been processed, offset > current offset have not yet been seen.  
+Thus, the broker does not need to track acknowledgments for every single message-
+it only needs to periodically recorded the consumer offsets.  
+The reduced bookkeeping overhead and the opportunities for batching and pipelining in this approach help increase the throughput of log-based systems.  
+
+This offset is in fact very similar to the _log sequence number_ that is commonly found in single-leader database replication.  
+The message broker behaves like a leader database, and the consumer like a follower.  
+
 #### Disk space usage
+
+If you only ever append to the log, you will eventually run out of disk space.  
+To reclaim disk space, the log is actually divided into segments, 
+and from time to time old segments are deleted or moved to archive storage.  
+This means that if a slow consumer cannot keep up with the rate of messages, it will miss some messages.  
+
+Effectively, the log implements a bounded-size buffer, also known as a _circular buffer_ or _ring buffer_.  
+Regardless of how long you retain messages, the throughput of a log remains more or less constant, since every message is written to disk anyway.  
+Such systems are fast when queues are short and become much slower when they start writing to disk, 
+so the throughput depends on the amount of history retained.  
 
 #### When consumers cannot keep up with producers
 
