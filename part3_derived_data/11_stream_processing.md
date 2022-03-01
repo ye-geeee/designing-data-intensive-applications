@@ -1,0 +1,117 @@
+# Stream Processing
+
+- [Transmitting Event Streams](#Transmitting-Event-Streams)
+    - [Message Systems](#Message-Systems)
+    - [Partitioned Logs](#Partitioned-Logs)
+- [Databases and Streams](#Databases-and-Streams)
+    - [Keeping Systems in Sync](#Keeping-Systems-in-Sync)
+    - [Change Data Capture](#Change-Data-Capture)
+    - [Event Sourcing](#Event-Sourcing)
+    - [State, Streams, and Immutability](#State,-Streams,-and-Immutability)
+- [Processing Streams](#Processing-Streams)
+    - [Uses of Stream Processing](#Uses-of-Stream-Processing)
+    - [Reasoning About Time](#Reasoning-About-Time)
+    - [Stream Joins](#Stream-Joins)
+
+## Transmitting Event Streams
+
+### Message Systems
+
+#### Direct Messaging from producers to consumers
+
+#### Message brokers
+
+#### Message brokers compared to databases
+
+#### Multiple consumers
+
+#### Acknowledgments and redelivery
+
+### Partitioned Logs
+
+#### Using logs for message storage
+
+#### Logs compared to traditional messaging
+
+#### Consumer offsets
+
+#### Disk space usage
+
+#### When consumers cannot keep up with producers
+
+#### Replaying ole messages
+
+## Databases and Streams
+
+### Keeping Systems in Sync
+
+### Change Data Capture
+
+#### Implementing change data capture
+
+#### Initial snapshot
+
+#### Log compaction
+
+#### API support for change streams
+
+### Event Sourcing
+
+#### Deriving current state from the event log
+
+#### Commands and events
+
+### State, Streams, and Immutability
+
+#### Advantages of immutable events
+
+#### Deriving several views from the same event log
+
+#### Concurrency control
+
+#### Limitations of immutability
+
+## Processing Streams
+
+### Uses of Stream Processing
+
+#### Complex event processing
+
+#### Stream analytics
+
+#### Maintaining materialized views
+
+#### Search on streams
+
+#### Message passing and RPC
+
+### Reasoning About Time
+
+#### Event time versus processing time
+
+#### Knowing when you're ready
+
+#### Whose clock are you using, anyway?
+
+#### Types of windows
+
+### Stream Joins
+
+#### Stream-stream join (window join)
+
+#### Stream-table join (stream enrichment)
+
+#### Table-table join (materialized view mainenance)
+
+#### Time-dependence of joins
+
+### Fault Tolerance
+
+#### Microbatching and checkpointing
+
+#### Atomic commit revisited
+
+#### Idempotence
+
+#### Rebuilding state after a failure
+
