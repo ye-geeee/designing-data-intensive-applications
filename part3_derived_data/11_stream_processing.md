@@ -631,5 +631,18 @@ we need to ensure that all outputs and side effects of processing an event take 
 
 #### Idempotence
 
+Our goal is to discard the partial output of any failed tasks so that they can be safely retried without taking effect twice.  
+Distributed transactions are one way of achieving that goal, but another way is to rely on _idempotence_.  
+
+An idempotent operation is one that you can perform multiple times, and it has the same effect as if you performed it only once.  
+Even if an operation is not naturally idempotent, it can often be made idempotent with a bit of extra metadata.
+
 #### Rebuilding state after a failure
 
+Any stream process that requires state and any tables and indexes used for joins—must ensure that this state can be recovered after a failure.   
+One option is to keep the state in a remote datastore and replicate it, although having to query a remote database for each individual message can be slow.  
+An alternative is to keep state local to the stream processor, and replicate it periodically.  
+In some cases, it may not even be necessary to replicate the state, because it can be rebuilt from the input streams.  
+
+However, all of these trade-offs depend on the performance characteristics of the underlying infrastructure.  
+There is no universally ideal trade-off for all situations, and the merits of local versus remote state may also shift as storage and networking technologies evolve.  
