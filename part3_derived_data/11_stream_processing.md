@@ -330,6 +330,12 @@ This transformation can use arbitrary logic, but it should be deterministic so t
 
 #### Commands and events
 
+_command_: a request from a user first arrives
+_event_: if the validation is successful, and the command is accepted > durable and immutable
+_fact_: at the point when the event is generated
+
+A consumer of the event stream is not allowed to reject an event.  
+
 ### State, Streams, and Immutability
 
 #### Advantages of immutable events
