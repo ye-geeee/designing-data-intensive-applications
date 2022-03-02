@@ -405,6 +405,22 @@ Deletion is more a matter of "making it harder to retrieve the data" than "makin
 
 ## Processing Streams
 
+What you can do with the stream once you have it, you can process it with three options:  
+
+1. You can take the data in the events and write it to a database, cache, search index, or similar storage, 
+   from where it can then be queried by other clients.  
+2. You can push events to users in some way(emailing, push notification, etc), and human is the ultimate consumer of the stream.  
+3. You can process one or more input streams to produce one or more output streams.  
+
+In option 3, a piece of code that processes streams like this is known as an _operator_ or a _job_.  
+It is closely related to the Unix processes and MapReduce jobs.  
+
+The one crucial difference to batch jobs is that a stream never ends.  
+Therefore, sorting does not make sense with an unbounded dataset, and so sort-merge joins cannot be used.  
+Fault-tolerance mechanisms must also change:  
+with a batch job, a failed task can simply be restarted from the beginning, 
+but with a stream job that has been running for several years, restarting from the beginning after a crash may not be a viable option.  
+
 ### Uses of Stream Processing
 
 #### Complex event processing
