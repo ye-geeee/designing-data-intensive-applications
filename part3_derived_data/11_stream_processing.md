@@ -476,6 +476,11 @@ and thus narrow down the set of queries that may match.
 
 #### Message passing and RPC
 
+We discussed message-passing systems as an alternative to RPC, as a mechanism for services to communicate, 
+as used for example in the actor model.  
+There is some crossover area between RPC-like systems and stream processing.  
+It is also possible to process streams using actor frameorks, but it is not guaranteed message delivery.  
+
 ### Reasoning About Time
 
 #### Event time versus processing time
