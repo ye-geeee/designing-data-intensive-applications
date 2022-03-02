@@ -564,7 +564,21 @@ for example, all events that occurred in the last hour, indexed by session ID.
 
 #### Stream-table join (stream enrichment)
 
-#### Table-table join (materialized view mainenance)
+Let's imagine user activity events.  
+It is natural to think of the user activity as a stream, and to perform the join on a continuous bases in a stream processor:  
+stream of activity events containing a userID, and the output is a stream of activity events.  
+
+To perform this join, the stream process needs to look at one activity, and look up the event's user ID in the database.  
+This remote queries are likely to be slow and risk overloading the databases.  
+
+Another approach is to load a copy of the database into the stream processor so that it can be queried locally without a network round-trip.  
+The difference to batch jobs is that a batch job uses a point-in-time snapshot of the database as input, whereas a stream processor is long-running.  
+This issue can be solved by change data capture: the stream processor can subscribe to a changelog of the user profile database as well as the stream of activity events.  
+
+A stream-table join is actually very similar to a stream-stream join;  
+the biggest difference is that for the table changelog stream, the join uses a window that reaches back to the "begging of time".  
+
+#### Table-table join (materialized view maintenance)
 
 #### Time-dependence of joins
 
