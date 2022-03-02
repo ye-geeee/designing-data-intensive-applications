@@ -593,6 +593,22 @@ The join of the streams corresponds directly to the join of the tables in that q
 
 #### Time-dependence of joins
 
+The above types of joins have a lot in common:  
+
+1. require the stream processor to maintain some state
+2. The order of the events that maintain the state is important
+
+Then if state changes over time, and you join with some state, what point in time do you use for the join?  
+
+If the ordering of events across streams is undetermined, the join becomes nondeterministic, 
+which means you cannot rerun the same job on the same input and necessarily get the same result:  
+the events on the input streams may be interleaved in a different way when you run the job again.  
+
+In data warehouses, this issue is known as a _slowly changing dimension_(SCD),
+nd it is often addressed by using a unique identifier for a particular version of the joined record.  
+
+<br/> 
+
 ### Fault Tolerance
 
 #### Microbatching and checkpointing
