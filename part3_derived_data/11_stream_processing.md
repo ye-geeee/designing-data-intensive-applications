@@ -496,6 +496,11 @@ It is simple and reasonable, but it breaks down if there is any significant proc
 
 #### Event time versus processing time
 
+There are many reasons why processing may be delayed:  
+queueing, network faults, a performance issue, a restart of the stream consumer, or reprocessing of past events.  
+Moroever, message delays can also lead to unpredictable ordering of messages.  
+Therefore, confusing event time and processing time leads to bad data.   
+
 #### Knowing when you're ready
 
 #### Whose clock are you using, anyway?
