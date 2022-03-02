@@ -556,6 +556,12 @@ To understand the situation better, let’s distinguish three different types of
 
 #### Stream-stream join (window join)
 
+Say you have a search feature on you website.  
+You need to bring together the events for the search action and click action, which are connected by having the same session ID.  
+
+To implement this type of join, a stream processor needs to maintain _state_:  
+for example, all events that occurred in the last hour, indexed by session ID.
+
 #### Stream-table join (stream enrichment)
 
 #### Table-table join (materialized view mainenance)
