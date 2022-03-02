@@ -611,6 +611,9 @@ nd it is often addressed by using a unique identifier for a particular version o
 
 ### Fault Tolerance
 
+The issue of fault tolerance arises in stream processing, but it is less straightforward to handle:  
+waiting until a task is finished before making its output visible is not an option, because a stream is infinite and so you can never finish processing it.
+
 #### Microbatching and checkpointing
 
 #### Atomic commit revisited
