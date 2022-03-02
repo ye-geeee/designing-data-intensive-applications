@@ -428,6 +428,17 @@ These kinds of applications require quite sophisticated pattern matching and cor
 
 #### Complex event processing
 
+_Complex event processing_(CEP) is similarly to the way that a regular expression allows you to search for certain patterns of characters.  
+CEP allows you to specify rules to search for certain patterns of events in a stream.  
+
+CEP systems often use a high-level declarative query language like SQL, or a graphical user interface, 
+to describe the patterns of events that should be detected.  
+When a match is found, the engine emits a _complex event_ with the details of the event pattern that was detected.  
+
+CEP engines queries are stored long-term, 
+and events from the input streams continuously flow past them in search of a query that matches an event pattern.  
+Implementations include Esper, IBM InfoSphere Streams, Apama, TIBCO StreamBase, SQLstream, Samza).  
+
 #### Stream analytics
 
 #### Maintaining materialized views
