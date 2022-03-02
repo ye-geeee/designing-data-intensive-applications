@@ -513,6 +513,20 @@ There are two options:
 
 #### Whose clock are you using, anyway?
 
+Assigning timestamps to events is even more difficult when events can be buffered at several points in the system.  
+For example, consider a mobile app that reports events for usage metrics to a server.  
+
+In this context, the timestamp on the events should really be the time at which the user interaction occured, 
+according to the mobile device's local clock which cannot be trusted.  
+
+To adjust for incorrect device clocks, one approach is to log three timestamps:  
+
+- The time at which the event occurred, according to the device clock
+- The time at which the event was sent to the server, according to the device clock
+- The time at which the event was received by the server, according to the server clock
+
+By subtracting the second timestamp from the third, you can estimate the offset between the device clock and the server clock.  
+
 #### Types of windows
 
 ### Stream Joins
