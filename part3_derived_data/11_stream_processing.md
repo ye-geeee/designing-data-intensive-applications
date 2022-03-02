@@ -354,6 +354,23 @@ If you store the changelog durably, that simply has the effect of making the sta
 
 #### Deriving several views from the same event log
 
+Moreover, by separating mutable state from the immutable event log, 
+you can derive several different read-oriented representations from the same log of event just like having multiple consumers of a stream.  
+
+Having an explicit translation step from ean event log to a database makes it easier to evolve your application over time.  
+You can use the event log to build a separate read-optimized view for the new feature, 
+and run it alongside the existing systems without having to modify them.  
+Running old and new systems side by side is often easier than performing a complicated schema migration in an existing system.  
+
+Many of the complexities of schema design, indexing, and storage engines are the result of wanting to support certain query and access patterns.  
+For this reason, you gain a lot of flexibility by separating the form in which data is written from the form it is read, 
+and by allowing several different read views. This idea is sometimes known as _command query responsibility segregation_.  
+
+Plus, it is entirely reasonable to denormalize data in the read-optimized views, 
+as the translation process gives you a mechanism for keeping it consistent with the event log.  
+The twitter example is an example of read-optimized state:  
+home timelines are highly denormalized.  
+
 #### Concurrency control
 
 #### Limitations of immutability
