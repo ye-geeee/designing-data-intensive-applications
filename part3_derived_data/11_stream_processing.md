@@ -348,6 +348,10 @@ If you store the changelog durably, that simply has the effect of making the sta
 
 #### Advantages of immutable events
 
+1. If incorrect figures, derived from the incorrect ledger, have already been published, then the figures for the next accounting period include a correction.  
+2. With an append-only log of immutable events, it is much easier to diagnose what happened and recover from the problem.  
+3. Immutable events also capture more information than just the current state.  
+
 #### Deriving several views from the same event log
 
 #### Concurrency control
