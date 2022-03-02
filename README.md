@@ -25,6 +25,6 @@
 
 |What|Date|Progress|
 |-----|----|---|
-|10. Batch Processing| |:x:|
-|11. Stream Processing| |:x:|
+|[10. Batch Processing](part3_derived_data/10_batch_processing.md)| 22.02.22 |:white_check_mark:|
+|[11. Stream Processing](part3_derived_data/11_stream_processing.md)| 22.03.03 |:white_check_mark:|
 |12. The Future of Data Systems| |:x:|
