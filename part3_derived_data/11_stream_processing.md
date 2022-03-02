@@ -421,6 +421,8 @@ Fault-tolerance mechanisms must also change:
 with a batch job, a failed task can simply be restarted from the beginning, 
 but with a stream job that has been running for several years, restarting from the beginning after a crash may not be a viable option.  
 
+<br/> 
+
 ### Uses of Stream Processing
 
 Stream Processing has long been used for monitoring purposes(usage patterns, trading systems, manufacturing systems, etc).  
@@ -481,7 +483,16 @@ as used for example in the actor model.
 There is some crossover area between RPC-like systems and stream processing.  
 It is also possible to process streams using actor frameorks, but it is not guaranteed message delivery.  
 
+<br/> 
+
 ### Reasoning About Time
+
+Stream processors often need to deal with time, especially when used for analytics purposes, which frequently use time windows.  
+In a batch process, the processing tasks rapidly crunch through a large collection of historical events.  
+
+Using the timestamps, in the events allows the processing to be deterministic.  
+On the other hand, many stream processing frameworks use the local system clock on the processing machine(_the processing time_).  
+It is simple and reasonable, but it breaks down if there is any significant processing lag.  
 
 #### Event time versus processing time
 
