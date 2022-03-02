@@ -616,6 +616,14 @@ waiting until a task is finished before making its output visible is not an opti
 
 #### Microbatching and checkpointing
 
+_Microbatching_ is to break the stream into small blocks, and treat each block like a miniature batch process.  
+A variant approach, used in Apache Flink, is to periodically generate rolling checkpoints of state and write them to durable storage.  
+If a stream operator crashes, it can restart from its most recent checkpoint and discard any output generated between the last checkpoint and the crash.  
+
+Within the confines of the stream processing framework, the microbatching and checkpointing approaches provide the same exactly-once semantics as batch processing.  
+However, as soon as output leaves the stream processor, the framework is no longer able to discard the output of a failed batch.  
+Therefore, microbatching or checkpointing alone is not sufficient to prevent this problem.  
+
 #### Atomic commit revisited
 
 #### Idempotence
