@@ -384,6 +384,25 @@ then a straightforward single-threaded log consumer needs no concurrency control
 
 #### Limitations of immutability
 
+Many systems that don't use an event-sourced model nevertheless rely on immutability.  
+(Also version control systems such as Git, Mercurial, Fossil)
+
+To what extent is it feasible to keep an immutable history of all changes forever?  
+The answer depends on the amount of churn in the dataset.  
+Some workloads rarely update or delete are easy to make immutable.  
+If workloads have a high rate of updates and deletes, immutable history may grow prohibitively large, 
+fragmentation may become an issue, and the performance of compaction and garbage collection becomes crucial for operational robustness.  
+
+Beside the performance reason, 
+there may also be circumstances in which you need data to be deleted for administrative reasons, in spite of all immutability(privacy regulations, data protection legislation, etc).  
+In these circumstances, you actually want to rewrite history and pretend that the data was never written in the first place.  
+(Datomic - _excision_, Fossil - _shunning_)
+
+Truly deleting data is surprisingly hard, since copies can live in many places.  
+Deletion is more a matter of "making it harder to retrieve the data" than "making it impossible to retrieve the data".  
+
+<br/> 
+
 ## Processing Streams
 
 ### Uses of Stream Processing
