@@ -272,11 +272,32 @@ Building a new full-text index requires a full copy of the entire database.
 You need to start with a consistent snapshot, as previously discussed with "Setting Up New Followers".  
 
 The snapshot of the database must correspond to a known position of offset in the change log, 
-so that you known at which point to start applying changes after the snapshot has been processed.  
+so that you have known at which point to start applying changes after the snapshot has been processed.  
 
 #### Log compaction
 
+If you can only keep a limited amount of log history, 
+you need to go through the snapshot process every time you want to add a new derived data system.  
+However, _log compaction_ provides a good alternative.  
+
+If the CDC system is set up such that every change has a primary key, 
+and every update for a key replaces the previous value for that key, 
+then it's sufficient to keep just the most recent write for a particular key.  
+
+Now, whenever you want to rebuild a derived data system such as a search index, 
+you can start a new consumer from offset 0 fof the log-compacted topic, 
+and sequentially scan over all messages in the log.  
+
 #### API support for change streams
+
+Increasingly, databases are beginning to support change streams as a first-class interface, 
+rather than the typical retrofitted and reverse-engineered CDC efforts.  
+
+- RethinkDB: allows queries to subscribe to notifications when the results of a query change
+- Firebase, CouchDB: provide data synchronization which is made available to applications
+- Meteor: use MongoDB oplog to subscribe to data changes
+- VoltDB: export data from a database in the form of a stream
+- Kafka Connect: update derived data systems such as search indexes, and also feed into stream processing systems
 
 ### Event Sourcing
 
