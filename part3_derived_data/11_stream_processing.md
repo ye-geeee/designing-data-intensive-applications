@@ -320,6 +320,14 @@ This approach allows that new side effect to easily be chained off the existing 
 
 #### Deriving current state from the event log
 
+Applications that use event sourcing need to take the log of events and transform it into application state that is suitable.  
+This transformation can use arbitrary logic, but it should be deterministic so that you can run it again and derive the same application state from the event log.  
+
+**Event sourcing compare to CDC**
+- at a higher level
+- later events typically do not override prior events, so you need the full history of events to reconstruct the final state
+- Log compaction is ot possible in the same way
+
 #### Commands and events
 
 ### State, Streams, and Immutability
