@@ -299,7 +299,24 @@ rather than the typical retrofitted and reverse-engineered CDC efforts.
 - VoltDB: export data from a database in the form of a stream
 - Kafka Connect: update derived data systems such as search indexes, and also feed into stream processing systems
 
+<br/> 
+
 ### Event Sourcing
+
+Similarly to change data capture, 
+event sourcing involves storing all changes to the application state as a log of change events.  
+The biggest difference is that event sourcing applies the idea at a different level of abstraction:  
+
+- data capture
+    - uses database in a mutable way
+    - logs extracted from the database at a low level, which ensures the order of writes, avoiding race conditions
+    - application does not need to be aware that CDC is occurring
+- event sourcing
+    - basis of immutable events
+    - append-only, updates or deletes are discouraged or prohibited
+    
+Event sourcing is a powerful technique for a data modeling.  
+This approach allows that new side effect to easily be chained off the existing event.  
 
 #### Deriving current state from the event log
 
