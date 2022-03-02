@@ -503,6 +503,14 @@ Therefore, confusing event time and processing time leads to bad data.
 
 #### Knowing when you're ready
 
+A tricky problem when defining windows in terms of event time is that you can never be sure 
+when you have received all of the events for a particular window.  
+You can time out and declare a window ready after you have not seen any new events for a while.  
+You need to be able to handle such _straggler_ events that arrive after the window has already been declared complete.  
+There are two options:  
+1. Ignore the straggler events
+2. Publish a _correction_
+
 #### Whose clock are you using, anyway?
 
 #### Types of windows
