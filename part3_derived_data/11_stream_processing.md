@@ -423,6 +423,9 @@ but with a stream job that has been running for several years, restarting from t
 
 ### Uses of Stream Processing
 
+Stream Processing has long been used for monitoring purposes(usage patterns, trading systems, manufacturing systems, etc).  
+These kinds of applications require quite sophisticated pattern matching and correlations.  
+
 #### Complex event processing
 
 #### Stream analytics
