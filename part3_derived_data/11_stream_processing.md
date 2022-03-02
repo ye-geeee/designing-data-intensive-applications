@@ -338,6 +338,14 @@ A consumer of the event stream is not allowed to reject an event.
 
 ### State, Streams, and Immutability
 
+Batch processing benefits from teh immutability of its input files.  
+This principle of immutability is also what makes event sourcing and change data capture so powerful.  
+
+The key idea is that mutable state and an append-only log of immutable events do not contradict each other.  
+The log of all changes, the _change-log_, represents the evolution of state over time.  
+
+If you store the changelog durably, that simply has the effect of making the state reproducible.
+
 #### Advantages of immutable events
 
 #### Deriving several views from the same event log
