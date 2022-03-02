@@ -373,6 +373,15 @@ home timelines are highly denormalized.
 
 #### Concurrency control
 
+The biggest downside of event sourcing and change data capture is that the consumers of the event log are usually asynchronous, 
+therefore, user can find that their write has not yet been reflected in the read view.  
+
+One solution would be to perform the updates of the read view synchronously with appending the event to the log.  
+On the other hand, deriving the current state from an event log also simplifies some aspects of concurrency control.  
+
+If the event log and the application state are partitioned in the same way, 
+then a straightforward single-threaded log consumer needs no concurrency control for writes.  
+
 #### Limitations of immutability
 
 ## Processing Streams
