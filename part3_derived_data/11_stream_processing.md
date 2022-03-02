@@ -529,6 +529,23 @@ By subtracting the second timestamp from the third, you can estimate the offset 
 
 #### Types of windows
 
+Several types of windows are in common use:  
+
+_Tumbling window_
+- fixed length, and every event belongs to exactly one window
+
+_Hopping window_
+- fixed length, allows windows to overlap in order to provide som smoothing
+
+_Sliding window_
+- contains all events that occur within some interval of each other
+
+_Session window_
+- has no fixed duration
+- defined by grouping together all events for the same user
+
+<br/>
+
 ### Stream Joins
 
 #### Stream-stream join (window join)
