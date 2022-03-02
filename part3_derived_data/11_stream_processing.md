@@ -465,6 +465,15 @@ that mostly operate on windows of a limited duration.
 
 #### Search on streams
 
+There is also sometimes a need to search for individual events based on complex criteria, such as full-text search queries.  
+Conventional search engines first index the documents and then run queries over the index.  
+By contrast, searching a stream turns the processing on its head:  
+the queries are stored, and the documents run past the queries.  
+
+This can get slow if you have a large number of queries.  
+To optimized the process, it is possible to index the queries as well as the documents, 
+and thus narrow down the set of queries that may match.  
+
 #### Message passing and RPC
 
 ### Reasoning About Time
