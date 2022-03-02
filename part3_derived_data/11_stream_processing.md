@@ -548,6 +548,12 @@ _Session window_
 
 ### Stream Joins
 
+Since stream processing generalizes data pipelines to incremental processing of unbounded datasets, 
+there is exactly the same need for joins on streams.  
+
+However, the fact that new events can appear anytime on a stream makes joins on stream more challenging that in batch jobs.  
+To understand the situation better, let’s distinguish three different types of joins: stream-stream joins, stream-table joins, and table-table joins.  
+
 #### Stream-stream join (window join)
 
 #### Stream-table join (stream enrichment)
