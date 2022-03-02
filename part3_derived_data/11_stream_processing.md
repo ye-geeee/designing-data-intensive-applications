@@ -580,6 +580,17 @@ the biggest difference is that for the table changelog stream, the join uses a w
 
 #### Table-table join (materialized view maintenance)
 
+In case of twitter example, we want a timeline cache which looks like personal "inbox".  
+To implement this cache maintenance in a stream processor, you need streams of events for tweets (sending and deleting) and for follow relationships (following and unfollowing).  
+
+```sql
+SELECT follows.follower_id AS timeline_id, array_agg(tweets.* ORDER BY tweets.timestamp DESC)
+FROM tweets
+JOIN follows ON follows.followee_id = tweets.sender_id GROUP BY follows.follower_id
+```
+
+The join of the streams corresponds directly to the join of the tables in that query. The timelines are effectively a cache of the result of this query, updated every time the underlying tables change.  
+
 #### Time-dependence of joins
 
 ### Fault Tolerance
