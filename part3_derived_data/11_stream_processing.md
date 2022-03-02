@@ -441,6 +441,16 @@ Implementations include Esper, IBM InfoSphere Streams, Apama, TIBCO StreamBase, 
 
 #### Stream analytics
 
+Another area in which stream processing is used if for _analytics_ on streams.  
+Analytics tends to be less interested in finding specific event sequences 
+and is more oriented toward aggregations ad statistical metrics over a large number of events.  
+Such statistics are usually computed over fixed time intervals, which is known as a _window_.  
+
+Stream analytics systems sometimes use probabilistic algorithms.  
+Probabilistic algorithms produce approximate results, but have the advantage of requiring significantly less memory in stream processor than exact algorithms.   
+This can leads people to believe that stream processing systems are always lossy and inexact but that is wrong:  
+there is nothing inherently approximate about stream processing, and probabilistic algorithms are merely an optimization.  
+
 #### Maintaining materialized views
 
 #### Search on streams
