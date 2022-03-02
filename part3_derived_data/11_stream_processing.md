@@ -626,6 +626,9 @@ Therefore, microbatching or checkpointing alone is not sufficient to prevent thi
 
 #### Atomic commit revisited
 
+In order to give the appearance of exactly-once processing in the presence of faults, 
+we need to ensure that all outputs and side effects of processing an event take effect if and only if the processing is successful.  
+
 #### Idempotence
 
 #### Rebuilding state after a failure
