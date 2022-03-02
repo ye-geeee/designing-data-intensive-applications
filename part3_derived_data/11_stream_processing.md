@@ -453,6 +453,16 @@ there is nothing inherently approximate about stream processing, and probabilist
 
 #### Maintaining materialized views
 
+We saw that a stream of changes to a database can be used to keep derived data systems, such as caches, search indexes, 
+and data warehouses, up to date with a source database(_materialized views_).  
+
+Building the materialized view potentially requires _all_ events over an arbitrary time period.  
+In effect, you need a window that stretches all the way back to the beginning of time.  
+
+In principle, any stream processor could be used for materialized view maintenance, 
+although the need to maintain events forever runs counter to the assumptions of some analytics-oriented frameworks 
+that mostly operate on windows of a limited duration.  
+
 #### Search on streams
 
 #### Message passing and RPC
